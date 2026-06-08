@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* Brand Colors */
+  --color-primary: #FF5500;
+  --color-primary-hover: #e64c00;
+  --color-accent: #34DEA7;
+  --color-accent-hover: #2fc783;
+  --color-accent-orange: #FF6B00;
+  --color-accent-orange-hover: #e56000;
+  --color-accent-orange-bg: #FFF8F3;
+  --color-warning: #facc15;
+  --color-warning-bg: #FFFBEB;
+  --color-warning-border: #FEF08A;
+  --color-warning-text: #D97706;
+
+  /* Semantic Colors */
+  --color-surface: #f8f9fa;
+  --color-surface-elevated: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+  --color-text-placeholder: #cbd5e1;
+
+  /* Status Colors */
+  --color-success: #4caf50;
+  --color-error: #ef4444;
+}
+input:checked{
+  background-color: var(--color-primary) !important;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-orange: var(--color-accent-orange);
+  --color-accent-orange-hover: var(--color-accent-orange-hover);
+  --color-accent-orange-bg: var(--color-accent-orange-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-warning-border: var(--color-warning-border);
+  --color-warning-text: var(--color-warning-text);
+  --color-surface: var(--color-surface);
+  --color-surface-elevated: var(--color-surface-elevated);
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-placeholder: var(--color-text-placeholder);
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+  --font-sans: var(--font-ibm-plex-sans-arabic);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Global custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
