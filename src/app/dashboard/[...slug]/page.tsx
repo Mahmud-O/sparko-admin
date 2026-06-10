@@ -15,22 +15,6 @@ interface PageData {
 }
 
 const pageDataMap: Record<string, PageData> = {
-  reviews: {
-    title: "طلبات المراجعة",
-    description: "عرض واعتماد طلبات الانضمام للجهات والمستفيدين الجدد",
-    stats: [
-      { label: "طلبات معلقة", value: 14, icon: "lucide:clock", color: "#FF5500", bg: "#fff1eb" },
-      { label: "معتمدة هذا الشهر", value: 45, icon: "lucide:check-circle", color: "#22C55E", bg: "#F0FDF4" },
-      { label: "طلبات مرفوضة", value: 3, icon: "lucide:x-circle", color: "#EF4444", bg: "#FEF2F2" },
-    ],
-    columns: ["الجهة / الاسم", "نوع الطلب", "التاريخ", "الحالة"],
-    rows: [
-      { col1: "جامعة الملك سعود", col2: "توثيق جهة جديدة", col3: "2026/06/07", col4: "قيد المراجعة", statusColor: "#FF5500" },
-      { col1: "وزارة التعليم", col2: "تعديل صلاحيات", col3: "2026/06/06", col4: "مقبول", statusColor: "#22C55E" },
-      { col1: "الهيئة السعودية للتخصصات", col2: "إضافة مشرفين", col3: "2026/06/05", col4: "قيد المراجعة", statusColor: "#FF5500" },
-      { col1: "سارة خالد الخليفي", col2: "طلب انضمام مستفيد", col3: "2026/06/04", col4: "مقبول", statusColor: "#22C55E" },
-    ],
-  },
   organizations: {
     title: "إدارة الجهات",
     description: "إدارة وتتبع الجهات المسجلة والشركاء في المنظومة",

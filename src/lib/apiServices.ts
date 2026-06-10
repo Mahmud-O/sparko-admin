@@ -159,3 +159,476 @@ export async function resetPasswordApi(
     await handlePasswordApiError(res, body);
   }
 }
+
+// ─── Review Types ─────────────────────────────────────────────────────────────
+
+export interface ReviewLogItem {
+  targetId: string;
+  requestType: 'Organization' | 'User' | 'Program' | 'Enrollment' | 'EditOrg' | 'EditUser' | string;
+  name: string;
+  organizationName: string;
+  documentStatus: string;
+  requestDate: string;
+  status: 'PendingReview' | 'PendingApproval' | 'PendingPublish' | 'Approved' | 'Rejected' | string;
+}
+
+export interface ReviewLogsResponse {
+  items: ReviewLogItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface DocumentDetails {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileSizeInMegabytes: number;
+  documentStatus: string;
+}
+
+export interface OrgRequestDetails {
+  userId: string;
+  officialName: string;
+  organizationType: string;
+  sector: string;
+  country: string;
+  city: string;
+  adminName: string;
+  email: string;
+  phoneNumber: string;
+  applicationDate: string;
+  documents: DocumentDetails[];
+}
+
+export interface TraineeRequestDetails {
+  userId: string;
+  name: string;
+  nationalId: string;
+  phoneNumber: string;
+  email: string;
+  country: string;
+  city: string;
+  classification: string;
+  affiliationEntity: string;
+  studySpecialization: string;
+  interestedMajor: string;
+  applicationDate: string;
+}
+
+export interface DecisionPayload {
+  targetId: string;
+  isApproved: boolean;
+  rejectionReason?: string;
+}
+
+// Stateful local mock reviews database
+let mockReviewLogs: ReviewLogItem[] = [
+  {
+    targetId: "1",
+    requestType: "Organization",
+    name: "شركة الاتحاد السعودي STC",
+    organizationName: "شركة الاتحاد السعودي STC",
+    documentStatus: "Pending",
+    requestDate: "2026-01-15T00:00:00Z",
+    status: "PendingReview",
+  },
+  {
+    targetId: "2",
+    requestType: "User",
+    name: "أحمد عبد العزيز",
+    organizationName: "",
+    documentStatus: "",
+    requestDate: "2026-01-16T00:00:00Z",
+    status: "PendingReview",
+  },
+  {
+    targetId: "3",
+    requestType: "Program",
+    name: "برنامج التدريب التعاوني",
+    organizationName: "",
+    documentStatus: "",
+    requestDate: "2026-01-17T00:00:00Z",
+    status: "PendingReview",
+  },
+  {
+    targetId: "4",
+    requestType: "Enrollment",
+    name: "سارة خالد الخليفي",
+    organizationName: "",
+    documentStatus: "",
+    requestDate: "2026-01-10T00:00:00Z",
+    status: "Approved",
+  },
+  {
+    targetId: "5",
+    requestType: "Organization",
+    name: "شركة أرامكو السعودية",
+    organizationName: "شركة أرامكو السعودية",
+    documentStatus: "Rejected",
+    requestDate: "2026-01-08T00:00:00Z",
+    status: "Rejected",
+  },
+  {
+    targetId: "6",
+    requestType: "User",
+    name: "عبدالله سعد المريخي",
+    organizationName: "",
+    documentStatus: "",
+    requestDate: "2026-01-18T00:00:00Z",
+    status: "Approved",
+  },
+  {
+    targetId: "7",
+    requestType: "EditUser",
+    name: "عبدالله سعد المريخي",
+    organizationName: "",
+    documentStatus: "",
+    requestDate: "2026-01-18T00:00:00Z",
+    status: "Approved",
+  },
+  {
+    targetId: "8",
+    requestType: "EditOrg",
+    name: "عبدالله سعد المريخي",
+    organizationName: "",
+    documentStatus: "",
+    requestDate: "2026-01-18T00:00:00Z",
+    status: "Approved",
+  },
+];
+
+let mockOrgDetails: Record<string, OrgRequestDetails> = {
+  "1": {
+    userId: "user-stc-id",
+    officialName: "شركة الاتحاد السعودي STC",
+    organizationType: "شركة مساهمة",
+    sector: "الاتصالات وتقنية المعلومات",
+    country: "المملكة العربية السعودية",
+    city: "الرياض",
+    adminName: "م. فهد بن حسين",
+    email: "f.hussein@stc.com.sa",
+    phoneNumber: "+966501234567",
+    applicationDate: "2026-01-15T08:30:00Z",
+    documents: [
+      {
+        id: "doc-1",
+        fileName: "السجل_التجاري.pdf",
+        fileUrl: "https://pdfobject.com/pdf/sample.pdf",
+        fileSizeInMegabytes: 2.4,
+        documentStatus: "Pending"
+      },
+      {
+        id: "doc-2",
+        fileName: "الهوية_الوطنية_للمفوض.pdf",
+        fileUrl: "https://pdfobject.com/pdf/sample.pdf",
+        fileSizeInMegabytes: 1.1,
+        documentStatus: "Pending"
+      }
+    ]
+  },
+  "5": {
+    userId: "user-aramco-id",
+    officialName: "شركة أرامكو السعودية",
+    organizationType: "شركة مساهمة حكومية",
+    sector: "الطاقة والنفط",
+    country: "المملكة العربية السعودية",
+    city: "الظهران",
+    adminName: "م. خالد بن أحمد",
+    email: "k.ahmed@aramco.com",
+    phoneNumber: "+966507654321",
+    applicationDate: "2026-01-08T09:00:00Z",
+    documents: [
+      {
+        id: "doc-3",
+        fileName: "السجل_التجاري_أرامكو.pdf",
+        fileUrl: "https://pdfobject.com/pdf/sample.pdf",
+        fileSizeInMegabytes: 4.8,
+        documentStatus: "Approved"
+      }
+    ]
+  }
+};
+
+let mockTraineeDetails: Record<string, TraineeRequestDetails> = {
+  "2": {
+    userId: "user-ahmed-id",
+    name: "أحمد عبد العزيز",
+    nationalId: "1098765432",
+    phoneNumber: "+966544332211",
+    email: "ahmed.aziz@gmail.com",
+    country: "المملكة العربية السعودية",
+    city: "جدة",
+    classification: "خريج حديث",
+    affiliationEntity: "جامعة الملك عبد العزيز",
+    studySpecialization: "هندسة برمجيات",
+    interestedMajor: "تطوير تطبيقات الويب والذكاء الاصطناعي",
+    applicationDate: "2026-01-16T10:15:00Z"
+  },
+  "6": {
+    userId: "user-muraikhi-id",
+    name: "عبدالله سعد المريخي",
+    nationalId: "1023456789",
+    phoneNumber: "+966555555555",
+    email: "a.muraikhi@gmail.com",
+    country: "المملكة العربية السعودية",
+    city: "الدمام",
+    classification: "طالب جامعي",
+    affiliationEntity: "جامعة الملك فهد للبترول والمعادن",
+    studySpecialization: "علوم حاسب",
+    interestedMajor: "الأمن السيبراني",
+    applicationDate: "2026-01-18T11:00:00Z"
+  }
+};
+
+export async function getReviewLogsApi(params?: {
+  Type?: string;
+  Status?: string;
+  Search?: string;
+  Sort?: string;
+  Page?: number;
+  PageSize?: number;
+}): Promise<ReviewLogsResponse> {
+  const queryParts: string[] = [];
+  if (params?.Type) queryParts.push(`Type=${encodeURIComponent(params.Type)}`);
+  if (params?.Status) queryParts.push(`Status=${encodeURIComponent(params.Status)}`);
+  if (params?.Search) queryParts.push(`Search=${encodeURIComponent(params.Search)}`);
+  if (params?.Sort) queryParts.push(`Sort=${encodeURIComponent(params.Sort)}`);
+  if (params?.Page) queryParts.push(`Page=${params.Page}`);
+  if (params?.PageSize) queryParts.push(`PageSize=${params.PageSize}`);
+
+  const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
+
+  try {
+    const res = await apiFetch(`/api/admin/requests${queryString}`, {
+      method: 'GET',
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب سجلات المراجعة');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock logs.', err);
+
+    // Apply filters & search to mock logs
+    let filtered = [...mockReviewLogs];
+
+    if (params?.Type && params.Type !== 'All') {
+      filtered = filtered.filter(item => item.requestType.toLowerCase() === params.Type!.toLowerCase());
+    }
+
+    if (params?.Status && params.Status !== 'All') {
+      filtered = filtered.filter(item => item.status.toLowerCase() === params.Status!.toLowerCase());
+    }
+
+    if (params?.Search) {
+      const searchLower = params.Search.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.name.toLowerCase().includes(searchLower) || 
+        (item.organizationName && item.organizationName.toLowerCase().includes(searchLower))
+      );
+    }
+
+    if (params?.Sort) {
+      if (params.Sort === 'DateDesc') {
+        filtered.sort((a, b) => new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime());
+      } else if (params.Sort === 'DateAsc') {
+        filtered.sort((a, b) => new Date(a.requestDate).getTime() - new Date(b.requestDate).getTime());
+      } else if (params.Sort === 'NameAsc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      } else if (params.Sort === 'NameDesc') {
+        filtered.sort((a, b) => b.name.localeCompare(a.name, 'ar'));
+      }
+    }
+
+    const totalCount = filtered.length;
+    const page = params?.Page ?? 1;
+    const pageSize = params?.PageSize ?? 10;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    // Paginate
+    const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+    return {
+      items: paginated,
+      totalCount,
+      page,
+      pageSize,
+      totalPages,
+    };
+  }
+}
+
+export async function getOrgRequestDetailsApi(id: string): Promise<OrgRequestDetails> {
+  try {
+    const res = await apiFetch(`/api/admin/requests/organizations/${id}`, {
+      method: 'GET',
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب تفاصيل طلب الجهة');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn(`Azure API error, falling back to local mock org details for ID: ${id}`);
+    const details = mockOrgDetails[id];
+    if (details) return details;
+
+    const mainLogItem = mockReviewLogs.find(x => x.targetId === id);
+    return {
+      userId: `user-${id}`,
+      officialName: mainLogItem?.name || 'جهة غير معروفة',
+      organizationType: 'شركة مساهمة',
+      sector: 'قطاع عام',
+      country: 'المملكة العربية السعودية',
+      city: 'الرياض',
+      adminName: 'مسؤول الجهة',
+      email: 'admin@org.com',
+      phoneNumber: '+966500000000',
+      applicationDate: mainLogItem?.requestDate || new Date().toISOString(),
+      documents: [
+        {
+          id: `doc-${id}-1`,
+          fileName: 'السند_الرسمي.pdf',
+          fileUrl: 'https://pdfobject.com/pdf/sample.pdf',
+          fileSizeInMegabytes: 1.5,
+          documentStatus: 'Pending'
+        }
+      ]
+    };
+  }
+}
+
+export async function submitOrgRequestDecisionApi(payload: DecisionPayload): Promise<void> {
+  try {
+    const res = await apiFetch('/api/admin/requests/organizations', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل تقديم قرار المراجعة للجهة');
+    }
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock submission for Org.', err);
+    const index = mockReviewLogs.findIndex(x => x.targetId === payload.targetId && x.requestType === 'Organization');
+    if (index !== -1) {
+      mockReviewLogs[index].status = payload.isApproved ? 'Approved' : 'Rejected';
+    }
+    const details = mockOrgDetails[payload.targetId];
+    if (details) {
+      details.documents.forEach(d => {
+        d.documentStatus = payload.isApproved ? 'Approved' : 'Rejected';
+      });
+    }
+  }
+}
+
+export async function getTraineeRequestDetailsApi(id: string): Promise<TraineeRequestDetails> {
+  try {
+    const res = await apiFetch(`/api/admin/requests/users/${id}`, {
+      method: 'GET',
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب تفاصيل طلب المستفيد');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn(`Azure API error, falling back to local mock trainee details for ID: ${id}`);
+    const details = mockTraineeDetails[id];
+    if (details) return details;
+
+    const mainLogItem = mockReviewLogs.find(x => x.targetId === id);
+    return {
+      userId: `user-${id}`,
+      name: mainLogItem?.name || 'مستفيد غير معروف',
+      nationalId: '1000000000',
+      phoneNumber: '+966500000000',
+      email: 'user@sparko.sa',
+      country: 'المملكة العربية السعودية',
+      city: 'الرياض',
+      classification: 'طالب',
+      affiliationEntity: 'الجامعة السعودية الإلكترونية',
+      studySpecialization: 'تقنية معلومات',
+      interestedMajor: 'الشبكات والاتصالات',
+      applicationDate: mainLogItem?.requestDate || new Date().toISOString()
+    };
+  }
+}
+
+export async function submitTraineeRequestDecisionApi(payload: DecisionPayload): Promise<void> {
+  try {
+    const res = await apiFetch('/api/admin/requests/users', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل تقديم قرار المراجعة للمستفيد');
+    }
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock submission for Trainee.', err);
+    const index = mockReviewLogs.findIndex(x => x.targetId === payload.targetId && x.requestType === 'User');
+    if (index !== -1) {
+      mockReviewLogs[index].status = payload.isApproved ? 'Approved' : 'Rejected';
+    }
+  }
+}
+
+export interface ProgramRequestDetails {
+  programId: string;
+  programName: string;
+  programType: string;
+  targetAudience: string;
+  startDate: string;
+  endDate: string;
+  applicationDate: string;
+}
+
+export async function getProgramRequestDetailsApi(id: string): Promise<ProgramRequestDetails> {
+  try {
+    const res = await apiFetch(`/api/admin/requests/programs/${id}`, {
+      method: 'GET',
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب تفاصيل طلب البرنامج');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn(`Azure API error, falling back to local mock program details for ID: ${id}`);
+    return {
+      programId: id,
+      programName: "برنامج تمهير لتطوير الخريجين",
+      programType: "تدريب على رأس العمل",
+      targetAudience: "خريجي البكالوريوس",
+      startDate: "2026-05-17T00:00:00Z",
+      endDate: "2026-06-15T00:00:00Z",
+      applicationDate: "2026-04-25T00:00:00Z"
+    };
+  }
+}
+
+export async function submitProgramRequestDecisionApi(payload: DecisionPayload): Promise<void> {
+  try {
+    const res = await apiFetch('/api/admin/requests/programs', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل تقديم قرار المراجعة للبرنامج');
+    }
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock submission for Program.', err);
+    const index = mockReviewLogs.findIndex(x => x.targetId === payload.targetId && (x.requestType === 'Program' || x.requestType === 'Enrollment'));
+    if (index !== -1) {
+      mockReviewLogs[index].status = payload.isApproved ? 'Approved' : 'Rejected';
+    }
+  }
+}
+
+

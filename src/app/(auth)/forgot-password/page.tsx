@@ -31,7 +31,7 @@ function Shell({ children, onBack }: { children: React.ReactNode; onBack: () => 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-between py-12" dir="rtl">
       {/* Centered Sparko logo at the top */}
-      <div className="w-full max-w-[396px] px-6 flex justify-center mb-4">
+      <div className="w-full max-w-99 px-6 flex justify-center mb-4">
         <Link href="/">
           <Image
             src="/sparko.png"
@@ -45,7 +45,7 @@ function Shell({ children, onBack }: { children: React.ReactNode; onBack: () => 
       </div>
 
       {/* Main centered form content */}
-      <div className="w-full max-w-[396px] px-6 flex-1 flex flex-col justify-center pb-12">
+      <div className="w-full max-w-99 px-6 flex-1 flex flex-col justify-center pb-12">
         <div className="flex justify-start mb-8">
           <button
             type="button"

@@ -1,15 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSidebarStore } from "@/store/useSidebarStore";
-import NotificationsModal from "@/components/dashboard/NotificationsModal";
+import NotificationsModal, { initialNotifications, type Notification } from "@/components/dashboard/NotificationsModal";
 
 export default function Header() {
   const { user } = useAuthStore();
   const { toggle } = useSidebarStore();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+
+  const unreadCount = notifications.filter((n) => n.isUnread).length;
+
+  const handleMarkAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isUnread: false })));
+  };
+
+  const handleMarkAsRead = (id: number) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isUnread: false } : n))
+    );
+  };
 
   return (
     <>
@@ -31,7 +45,11 @@ export default function Header() {
             className="relative outline outline-offset-1 outline-zinc-200 p-2 rounded-lg text-[#64748B] hover:bg-[#F8F9FA] transition-all shrink-0 cursor-pointer"
           >
             <Icon icon="lucide:bell" className="w-5 h-5" />
-            <span className="absolute flex justify-center items-center text-[6px] text-white top-1.5 right-1 w-3.5 h-3.5 bg-primary rounded-full border-2 border-white">30</span>
+            {unreadCount > 0 && (
+              <span className="absolute flex justify-center items-center text-[7px] text-white top-1 right-1 w-4 h-4 bg-[#FF5500] rounded-full border border-white font-bold font-sans">
+                {unreadCount}
+              </span>
+            )}
           </button>
 
           {/* Search */}
@@ -49,22 +67,13 @@ export default function Header() {
         <div className="flex items-center gap-3 md:gap-6 shrink-0">
           {/* Language Selector */}
           <div className="flex items-center gap-2 text-[13px] text-[#1E293B] cursor-pointer transition-colors">
+            <div className="w-7 h-7 rounded-full overflow-hidden bg-[#006c35] ">
+              <Image src="/saudi-arabia-48.svg" alt="SA" width={35} height={35} className="w-auto h-auto object-cover" />
+            </div>
             <Icon icon="lucide:chevron-down" className="w-3.5 h-3.5 text-[#64748B]" />
             <div className="text-right flex-col hidden sm:flex">
               <span className="font-bold text-[12px] leading-tight">العربية</span>
               <span className="text-[#94A3B8] text-[9px] leading-tight">تغيير اللغة</span>
-            </div>
-            <div className="w-7 h-7 rounded-full overflow-hidden bg-[#F1F5F9] flex items-center justify-center">
-              <img
-                src="/saudi-arabia-48.svg"
-                alt="SA"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  target.parentElement!.innerHTML = `<span class="text-[#64748B] text-[10px] font-bold">SA</span>`;
-                }}
-              />
             </div>
           </div>
 
@@ -84,6 +93,9 @@ export default function Header() {
       <NotificationsModal
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
+        notifications={notifications}
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onMarkAsRead={handleMarkAsRead}
       />
     </>
   );

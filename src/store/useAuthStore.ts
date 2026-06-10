@@ -25,6 +25,18 @@ interface AuthState {
   hydrate: () => void;
 }
 
+function extractRoles(payload: any): string[] {
+  if (!payload) return [];
+  const rawRoles = payload.roles ?? payload.role ?? payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? [];
+  if (Array.isArray(rawRoles)) {
+    return rawRoles;
+  }
+  if (typeof rawRoles === 'string') {
+    return [rawRoles];
+  }
+  return [];
+}
+
 /** Check if roles array contains an admin role */
 function checkIsAdmin(roles: string[]): boolean {
   const adminRoles = ['Admin', 'SuperAdmin', 'admin', 'superadmin'];
@@ -34,12 +46,21 @@ function checkIsAdmin(roles: string[]): boolean {
 /** Decode JWT payload to extract user info (without verification — client-side only) */
 function decodeJwtPayload(token: string): Partial<User> | null {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    const roles = extractRoles(payload);
     return {
       id: payload.sub ?? payload.id ?? '',
       email: payload.email ?? '',
       userName: payload.name ?? payload.userName ?? '',
-      roles: payload.roles ?? [],
+      roles,
     };
   } catch {
     return null;
@@ -65,9 +86,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
     if (token) {
       const payload = decodeJwtPayload(token);
       const roles = payload?.roles ?? [];
+      const isAdmin = checkIsAdmin(roles);
       set({
-        isAuthenticated: true,
-        isAdmin: checkIsAdmin(roles),
+        isAuthenticated: !!payload,
+        isAdmin,
         user: payload
           ? {
               id: payload.id ?? '',
@@ -76,6 +98,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
               roles,
             }
           : null,
+      });
+    } else {
+      set({
+        isAuthenticated: false,
+        isAdmin: false,
+        user: null,
       });
     }
   },
