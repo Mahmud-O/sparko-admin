@@ -237,10 +237,10 @@ let mockReviewLogs: ReviewLogItem[] = [
   {
     targetId: "2",
     requestType: "User",
-    name: "أحمد عبد العزيز",
+    name: "حامد بشتان",
     organizationName: "",
     documentStatus: "",
-    requestDate: "2026-01-16T00:00:00Z",
+    requestDate: "2026-04-23T00:00:00Z",
     status: "PendingReview",
   },
   {
@@ -354,17 +354,17 @@ let mockOrgDetails: Record<string, OrgRequestDetails> = {
 let mockTraineeDetails: Record<string, TraineeRequestDetails> = {
   "2": {
     userId: "user-ahmed-id",
-    name: "أحمد عبد العزيز",
-    nationalId: "1098765432",
-    phoneNumber: "+966544332211",
-    email: "ahmed.aziz@gmail.com",
-    country: "المملكة العربية السعودية",
-    city: "جدة",
-    classification: "خريج حديث",
-    affiliationEntity: "جامعة الملك عبد العزيز",
-    studySpecialization: "هندسة برمجيات",
-    interestedMajor: "تطوير تطبيقات الويب والذكاء الاصطناعي",
-    applicationDate: "2026-01-16T10:15:00Z"
+    name: "حامد بشتان",
+    nationalId: "1000001000",
+    phoneNumber: "+966509891000",
+    email: "h@etc.com.sa",
+    country: "السعودية",
+    city: "الرياض",
+    classification: "طالب جامعي",
+    affiliationEntity: "جامعة سعود",
+    studySpecialization: "علوم الحاسوب",
+    interestedMajor: "الذكاء الاصطناعي",
+    applicationDate: "2026-04-23T00:00:00Z"
   },
   "6": {
     userId: "user-muraikhi-id",

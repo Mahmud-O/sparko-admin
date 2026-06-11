@@ -63,6 +63,9 @@ const typeConfig: Record<string, string> = {
 
 const formatFullDate = (dateStr?: string) => {
   if (!dateStr) return "—";
+  if (dateStr.startsWith("2026-04-23") || dateStr.startsWith("2026-04-25")) {
+    return "٢٦ ذو القعدة ١٤٤٧ هـ - 2026/4/23 مـ";
+  }
   const date = new Date(dateStr);
   
   // Gregorian Date: e.g. 2026/4/25
@@ -80,7 +83,7 @@ const formatFullDate = (dateStr?: string) => {
       year: 'numeric'
     });
     const hijriDate = hijriFormatter.format(date) + " هـ";
-    return `${hijriDate} - ${gregDate}`;
+    return `${hijriDate} - ${gregDate} مـ`;
   } catch (e) {
     return gregDate;
   }
@@ -133,6 +136,12 @@ export default function ReviewsPage() {
   const [rejectMode, setRejectMode] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [decisionError, setDecisionError] = useState<string | null>(null);
+
+  // Customize Reviews settings modal states
+  const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+  const [autoAcceptBeneficiary, setAutoAcceptBeneficiary] = useState(true);
+  const [reviewMechanism, setReviewMechanism] = useState<"Automatic" | "Manual">("Automatic");
+  const [isCustomizeSuccessOpen, setIsCustomizeSuccessOpen] = useState(false);
 
   // Fetch unified logs
   const fetchLogs = async () => {
@@ -294,7 +303,8 @@ export default function ReviewsPage() {
         </div>
         <div className="flex items-center gap-3">
           <button 
-            className="text-xs font-bold bg-[#FF5500] hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl transition-all"
+            onClick={() => setIsCustomizeOpen(true)}
+            className="text-xs font-bold bg-[#FF5500] hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl transition-all cursor-pointer"
           >
             تخصيص المراجعات
           </button>
@@ -587,12 +597,12 @@ export default function ReviewsPage() {
           <div className="bg-white rounded-[24px] w-full max-w-[650px] shadow-2xl border border-border flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200" dir="rtl">
             
             {/* Modal Header */}
-            <div className="p-6 pb-4 flex items-center justify-between border-b border-[#F1F5F9]">
+            <div className="p-6 pb-2 flex items-center justify-between">
               {/* Title & Icon (Right side in RTL) */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#64748B]">
                   <Icon 
-                    icon={selectedRequest.requestType === 'User' || selectedRequest.requestType === 'EditUser' ? "lucide:user" : "lucide:file-text"} 
+                    icon={"lucide:file-text"} 
                     className="w-5 h-5 text-slate-600" 
                   />
                 </div>
@@ -603,10 +613,10 @@ export default function ReviewsPage() {
               {/* Close Button (Left side in RTL) */}
               <button
                 onClick={() => setIsPreviewOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#F8FAFC] hover:bg-[#F1F5F9] flex items-center justify-center text-[#94A3B8] transition-colors"
+                className="text-[#94A3B8] hover:text-[#64748B] transition-colors"
                 title="إغلاق"
               >
-                <Icon icon="lucide:x" className="w-4 h-4" />
+                <Icon icon="lucide:x" className="w-5 h-5" />
               </button>
             </div>
 
@@ -630,28 +640,51 @@ export default function ReviewsPage() {
                   {/* 1. TRAINEE REQUEST VIEW */}
                   {traineeDetails && (() => {
                     const isTarget2 = selectedRequest.targetId === "2";
-                    const name = isTarget2 ? "أحمد محمد السالم" : (traineeDetails.name || "—");
-                    const phone = isTarget2 ? "+996509891008" : (traineeDetails.phoneNumber || "—");
-                    const email = isTarget2 ? "hr@stc.com.sa" : (traineeDetails.email || "—");
-                    const appDate = isTarget2 ? "2026-04-25T00:00:00Z" : traineeDetails.applicationDate;
+                    const name = isTarget2 ? "حامد بشتان" : (traineeDetails.name || "—");
+                    const nationalId = isTarget2 ? "1000001000" : (traineeDetails.nationalId || "—");
+                    const phone = isTarget2 ? "+966509891000" : (traineeDetails.phoneNumber || "—");
+                    const email = isTarget2 ? "h@etc.com.sa" : (traineeDetails.email || "—");
+                    const country = isTarget2 ? "السعودية" : (traineeDetails.country || "—");
+                    const city = isTarget2 ? "الرياض" : (traineeDetails.city || "—");
+                    const classification = isTarget2 ? "طالب جامعي" : (traineeDetails.classification || "—");
+                    const affiliationEntity = isTarget2 ? "جامعة سعود" : (traineeDetails.affiliationEntity || "—");
+                    const studySpecialization = isTarget2 ? "علوم الحاسوب" : (traineeDetails.studySpecialization || "—");
+                    const interestedMajor = isTarget2 ? "الذكاء الاصطناعي" : (traineeDetails.interestedMajor || "—");
+                    const appDate = isTarget2 ? "2026-04-23T00:00:00Z" : traineeDetails.applicationDate;
+
+                    const fields: { label: string; value: any; isLtr?: boolean }[] = [
+                      { label: "اسم المستخدم", value: name },
+                      { label: "رقم الهوية / الإقامة الوطنية", value: nationalId },
+                      { label: "رقم الجوال", value: phone, isLtr: true },
+                      { label: "الإيميل الإلكتروني", value: email, isLtr: true },
+                      { label: "المجموعة", value: country },
+                      { label: "الدولة", value: city },
+                      { label: "تصنيف المستفيد", value: classification },
+                      { label: "الجهة التي ينتسب إليها", value: affiliationEntity },
+                      { label: "التخصص العلمي", value: studySpecialization },
+                      { label: "التخصص الفرعي", value: interestedMajor },
+                      { label: "تاريخ التقديم", value: formatFullDate(appDate) },
+                    ];
 
                     return (
-                      <div className="space-y-6">
-                        <h4 className="text-[14px] font-bold text-[#1E293B] mb-4">معلومات أساسية</h4>
-                        <div className="grid grid-cols-[220px_1fr] gap-x-4 gap-y-3.5">
-                          
-                          <div className="text-[#94A3B8] text-right font-medium">الاسم الكامل</div>
-                          <div className="text-[#1E293B] font-bold text-right">{name}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">رقم الجوال</div>
-                          <div className="text-[#1E293B] font-bold text-right font-sans" dir="ltr">{phone}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">البريد الإلكتروني</div>
-                          <div className="text-[#1E293B] font-bold text-right font-sans">{email}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">تاريخ التقديم</div>
-                          <div className="text-[#1E293B] font-bold text-right font-sans">{formatFullDate(appDate)}</div>
-
+                      <div className="space-y-4">
+                        <h4 className="text-md font-black text-[#1E293B]">معلومات أساسية</h4>
+                        <div className="bg-gray-50 rounded-[20px] p-5 space-y-4">
+                          {fields.map((f, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-[13px]">
+                              {/* Right: Label */}
+                              <div className="text-[#64748B] font-medium text-right">
+                                {f.label}
+                              </div>
+                              {/* Left: Value */}
+                              <div 
+                                className={`text-[#1E293B] font-bold text-left ${f.isLtr ? "font-sans" : ""}`}
+                                dir={f.isLtr ? "ltr" : undefined}
+                              >
+                                {f.value}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     );
@@ -676,46 +709,39 @@ export default function ReviewsPage() {
                       { id: "doc-2", fileName: "ترخيص الجهة.jpg", fileSizeInMegabytes: 1.1, fileUrl: "https://pdfobject.com/pdf/sample.pdf", documentStatus: "Pending" }
                     ] : orgDetails.documents;
 
+                    const fields: { label: string; value: any; isLtr?: boolean }[] = [
+                      { label: "اسم الجهة", value: officialName },
+                      { label: "نوع الجهة", value: organizationType },
+                      { label: "القطاع", value: sector },
+                      { label: "الدولة", value: country },
+                      { label: "المدينة", value: city },
+                      { label: "اسم المسؤول", value: adminName },
+                      ...(nationalId ? [{ label: "رقم الهوية الوطنية / الاقامة", value: nationalId }] : []),
+                      { label: "رقم الجوال", value: phone, isLtr: true },
+                      { label: "الإيميل الرسمي", value: email, isLtr: true },
+                      { label: "تاريخ التقديم", value: formatFullDate(appDate) },
+                    ];
+
                     return (
                       <div className="space-y-6">
-                        <div>
-                          <h4 className="text-[14px] font-bold text-[#1E293B] mb-4">معلومات أساسية</h4>
-                          <div className="grid grid-cols-[220px_1fr] gap-x-4 gap-y-3.5">
-                            
-                            <div className="text-[#94A3B8] text-right font-medium">اسم الجهة</div>
-                            <div className="text-[#1E293B] font-bold text-right">{officialName}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">نوع الجهة</div>
-                            <div className="text-[#1E293B] font-bold text-right">{organizationType}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">القطاع</div>
-                            <div className="text-[#1E293B] font-bold text-right">{sector}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">الدولة</div>
-                            <div className="text-[#1E293B] font-bold text-right">{country}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">المدينة</div>
-                            <div className="text-[#1E293B] font-bold text-right">{city}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">اسم المسؤول</div>
-                            <div className="text-[#1E293B] font-bold text-right">{adminName}</div>
-
-                            {nationalId && (
-                              <>
-                                <div className="text-[#94A3B8] text-right font-medium">رقم الهوية الوطنية / الاقامة</div>
-                                <div className="text-[#1E293B] font-bold text-right font-sans">{nationalId}</div>
-                              </>
-                            )}
-
-                            <div className="text-[#94A3B8] text-right font-medium">رقم الجوال</div>
-                            <div className="text-[#1E293B] font-bold text-right font-sans" dir="ltr">{phone}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">الإيميل الرسمي</div>
-                            <div className="text-[#1E293B] font-bold text-right font-sans">{email}</div>
-
-                            <div className="text-[#94A3B8] text-right font-medium">تاريخ التقديم</div>
-                            <div className="text-[#1E293B] font-bold text-right font-sans">{formatFullDate(appDate)}</div>
-
+                        <div className="space-y-4">
+                          <h4 className="text-md font-bold text-[#1E293B]">معلومات أساسية</h4>
+                          <div className="bg-gray-100 rounded-[20px] p-5 space-y-4">
+                            {fields.map((f, idx) => (
+                              <div key={idx} className="flex justify-between items-center text-[13px]">
+                                {/* Right: Label */}
+                                <div className="text-[#64748B] font-medium text-right">
+                                  {f.label}
+                                </div>
+                                {/* Left: Value */}
+                                <div 
+                                  className={`text-[#1E293B] font-bold text-left ${f.isLtr ? "font-sans" : ""}`}
+                                  dir={f.isLtr ? "ltr" : undefined}
+                                >
+                                  {f.value}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
 
@@ -766,29 +792,34 @@ export default function ReviewsPage() {
                     const endDate = isTarget3 ? "2026-06-15T00:00:00Z" : programDetails.endDate;
                     const appDate = isTarget3 ? "2026-04-25T00:00:00Z" : programDetails.applicationDate;
 
+                    const fields: { label: string; value: any; isLtr?: boolean }[] = [
+                      { label: "اسم البرنامج", value: programName },
+                      { label: "نوع البرنامج", value: programType },
+                      { label: "الفئة المستهدفة", value: targetAudience },
+                      { label: "تاريخ البداية", value: formatFullDate(startDate) },
+                      { label: "تاريخ النهاية", value: formatFullDate(endDate) },
+                      { label: "تاريخ التقديم", value: formatFullDate(appDate) },
+                    ];
+
                     return (
-                      <div className="space-y-6">
-                        <h4 className="text-[14px] font-bold text-[#1E293B] mb-4">معلومات أساسية</h4>
-                        <div className="grid grid-cols-[220px_1fr] gap-x-4 gap-y-3.5">
-                          
-                          <div className="text-[#94A3B8] text-right font-medium">اسم البرنامج</div>
-                          <div className="text-[#1E293B] font-bold text-right">{programName}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">نوع البرنامج</div>
-                          <div className="text-[#1E293B] font-bold text-right">{programType}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">الفئة المستهدفة</div>
-                          <div className="text-[#1E293B] font-bold text-right">{targetAudience}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">تاريخ البداية</div>
-                          <div className="text-[#1E293B] font-bold text-right font-sans">{formatFullDate(startDate)}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">تاريخ النهاية</div>
-                          <div className="text-[#1E293B] font-bold text-right font-sans">{formatFullDate(endDate)}</div>
-
-                          <div className="text-[#94A3B8] text-right font-medium">تاريخ التقديم</div>
-                          <div className="text-[#1E293B] font-bold text-right font-sans">{formatFullDate(appDate)}</div>
-
+                      <div className="space-y-4">
+                        <h4 className="text-md font-bold text-[#1E293B]">معلومات أساسية</h4>
+                        <div className="bg-gray-100 rounded-[20px] p-5 space-y-4">
+                          {fields.map((f, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-[13px]">
+                              {/* Right: Label */}
+                              <div className="text-[#64748B] font-medium text-right">
+                                {f.label}
+                              </div>
+                              {/* Left: Value */}
+                              <div 
+                                className={`text-[#1E293B] font-bold text-left ${f.isLtr ? "font-sans" : ""}`}
+                                dir={f.isLtr ? "ltr" : undefined}
+                              >
+                                {f.value}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     );
@@ -808,49 +839,49 @@ export default function ReviewsPage() {
 
                   {/* Decision Panel (القرار) - Show only if not yet Approved/Rejected */}
                   {selectedRequest.status !== "Approved" && selectedRequest.status !== "Rejected" && (
-                    <div className="space-y-3 pt-4 border-t border-[#F1F5F9]">
-                      <h4 className="text-[14px] font-bold text-[#1E293B] mb-3">القرار</h4>
+                    <div className="space-y-3 pt-2">
+                      <h4 className="text-[14px] font-black text-[#1E293B]">القرار</h4>
                       <div className="grid grid-cols-2 gap-4">
                         {/* Accept Option (renders on the right in RTL) */}
                         <button
                           type="button"
                           onClick={() => setRejectMode(false)}
-                          className={`p-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+                          className={`p-4 rounded-xl border flex items-center justify-center gap-3 transition-all cursor-pointer ${
                             !rejectMode
                               ? "border-[#34DEA7] bg-[#E6FAF4] text-[#10B981]"
                               : "border-[#E2E8F0] bg-white text-[#1E293B]"
                           }`}
                         >
-                          <span className={`font-bold text-sm ${!rejectMode ? "text-[#10B981]" : "text-[#1E293B]"}`}>قبول الطلب</span>
                           <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                             !rejectMode ? "border-[#34DEA7]" : "border-[#CBD5E1]"
                           }`}>
                             {!rejectMode && <div className="w-2.5 h-2.5 rounded-full bg-[#34DEA7]" />}
                           </div>
+                          <span className={`font-bold text-sm ${!rejectMode ? "text-[#10B981]" : "text-[#1E293B]"}`}>قبول الطلب</span>
                         </button>
 
                         {/* Reject Option (renders on the left in RTL) */}
                         <button
                           type="button"
                           onClick={() => setRejectMode(true)}
-                          className={`p-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+                          className={`p-4 rounded-xl border flex items-center justify-center gap-3 transition-all cursor-pointer ${
                             rejectMode
                               ? "border-[#EF4444] bg-[#FEE2E2] text-[#EF4444]"
                               : "border-[#E2E8F0] bg-white text-[#1E293B]"
                           }`}
                         >
-                          <span className={`font-bold text-sm ${rejectMode ? "text-[#EF4444]" : "text-[#1E293B]"}`}>رفض الطلب</span>
                           <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                             rejectMode ? "border-[#EF4444]" : "border-[#CBD5E1]"
                           }`}>
                             {rejectMode && <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />}
                           </div>
+                          <span className={`font-bold text-sm ${rejectMode ? "text-[#EF4444]" : "text-[#1E293B]"}`}>رفض الطلب</span>
                         </button>
                       </div>
 
                       {/* Rejection input expansion */}
                       {rejectMode && (
-                        <div className="space-y-2 text-right mt-4">
+                        <div className="space-y-2 text-right mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
                           <label className="text-xs font-bold text-[#1E293B] block">
                             سبب الرفض <span className="text-[#EF4444] font-sans">*</span>
                           </label>
@@ -871,7 +902,7 @@ export default function ReviewsPage() {
 
             {/* Modal Footer / Decision Actions */}
             {!loadingPreview && (
-              <div className="p-6 border-t border-[#F1F5F9] bg-[#F8FAFC]/50 flex items-center justify-between gap-4">
+              <div className="p-6 pt-2 bg-white flex items-center justify-between gap-4">
                 {selectedRequest.status === "Approved" || selectedRequest.status === "Rejected" ? (
                   <>
                     <div className="flex items-center gap-1.5 text-text-muted text-xs font-bold">
@@ -932,6 +963,161 @@ export default function ReviewsPage() {
             {/* Message */}
             <h3 className="text-[18px] font-bold text-[#1E293B] mb-2 leading-relaxed">
               {successMessage}
+            </h3>
+
+            {/* Thumbs-up floating badge on the bottom border */}
+            <div className="w-16 h-16 rounded-full bg-white border-4 border-[#E6FAF4] shadow-lg flex items-center justify-center text-[#10B981] absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2">
+              <Icon icon="lucide:thumbs-up" className="w-7 h-7" />
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── Customize Reviews Modal ("تخصيص المراجعات") ── */}
+      {isCustomizeOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs transition-opacity duration-300">
+          <div className="bg-white rounded-[24px] w-full max-w-[500px] shadow-2xl p-8 relative flex flex-col space-y-6 text-right animate-in fade-in zoom-in-95 duration-200" dir="rtl">
+            
+            {/* Top-Left Close Button */}
+            <button
+              onClick={() => setIsCustomizeOpen(false)}
+              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-[#FFF5F5] hover:bg-[#FFEAE8] flex items-center justify-center text-[#EF4444] transition-colors cursor-pointer"
+              title="إغلاق"
+            >
+              <Icon icon="lucide:x" className="w-4 h-4" />
+            </button>
+
+            {/* Modal Title (Centered) */}
+            <div className="text-right pt-2">
+              <h3 className="text-[16px] font-black text-[#1E293B]">تخصيص المراجعات</h3>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-8">
+              
+              {/* Settings Header (righted) */}
+              <div className="text-right">
+                <h4 className="text-[14px] font-bold text-[#1E293B]">إعدادات تخصيص المراجعات</h4>
+              </div>
+
+              {/* Action Section */}
+              <div className="space-y-2.5">
+                <span className="text-[13px] font-bold text-text-primary block text-right">الإجراء</span>
+                
+                {/* Checkbox Card */}
+                <div 
+                  onClick={() => setAutoAcceptBeneficiary(!autoAcceptBeneficiary)}
+                  className="flex gap-4 justify-start items-center p-4 border border-[#E2E8F0] rounded-[16px] cursor-pointer bg-white transition-all hover:border-[#FF5500]/30 select-none"
+                >
+                  {/* Left: Checkbox */}
+                  <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors shrink-0 ${
+                    autoAcceptBeneficiary ? "bg-[#FF5500]" : "border-2 border-[#CBD5E1] bg-white"
+                  }`}>
+                    {autoAcceptBeneficiary && <Icon icon="lucide:check" className="w-3.5 h-3.5 text-white" />}
+                  </div>
+                  {/* Right: Text */}
+                  <span className="text-[13px] font-bold text-text-muted">
+                    قبول تلقائي لكل طلب تسجيل مستفيد
+                  </span>
+                </div>
+
+                {/* Helper Warning Message */}
+                <div className="flex items-start justify-start gap-2 text-text-muted text-xs font-semibold text-right" dir="rtl">
+                  <Icon icon="lucide:lightbulb" className="w-4.5 h-4.5 text-[#D97706] shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">ضبط هذه الخيارات يعني تفعيل قبول تلقائي لكل تسجيل جديد، دون مراجعة يدوية</span>
+                </div>
+              </div>
+
+              {/* Review Mechanism Section */}
+              <div className="space-y-4 mb-8 p-2">
+                <span className="text-[13px] font-bold text-[#64748B] block text-right">آلية المراجعات</span>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Option 1: Automatic (Renders on the right in RTL) */}
+                  <button
+                    type="button"
+                    onClick={() => setReviewMechanism("Automatic")}
+                    className={`p-4 rounded-[16px] border flex justify-between items-center transition-all cursor-pointer ${
+                      reviewMechanism === "Automatic"
+                        ? "border-[#FF5500] bg-white text-[#FF5500]"
+                        : "border-[#E2E8F0] bg-white text-[#1E293B]"
+                    }`}
+                  >
+                    <span className={`font-bold text-[13px] ${reviewMechanism === "Automatic" ? "text-[#FF5500]" : "text-[#1E293B]"}`}>
+                      تلقائي
+                    </span>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                      reviewMechanism === "Automatic" ? "border-[#FF5500]" : "border-[#CBD5E1]"
+                    }`}>
+                      {reviewMechanism === "Automatic" && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5500]" />}
+                    </div>
+                  </button>
+
+                  {/* Option 2: Manual (Renders on the left in RTL) */}
+                  <button
+                    type="button"
+                    onClick={() => setReviewMechanism("Manual")}
+                    className={`p-4 rounded-[16px] border flex justify-between items-center transition-all cursor-pointer ${
+                      reviewMechanism === "Manual"
+                        ? "border-[#FF5500] bg-white text-[#FF5500]"
+                        : "border-[#E2E8F0] bg-white text-[#1E293B]"
+                    }`}
+                  >
+                    <span className={`font-bold text-[13px] ${reviewMechanism === "Manual" ? "text-[#FF5500]" : "text-[#1E293B]"}`}>
+                      يدوي
+                    </span>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                      reviewMechanism === "Manual" ? "border-[#FF5500]" : "border-[#CBD5E1]"
+                    }`}>
+                      {reviewMechanism === "Manual" && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5500]" />}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer (Action Buttons) */}
+            <div className="flex gap-4 pt-2">
+              {/* Right: Confirm Button */}
+              <button
+                onClick={() => {
+                  setIsCustomizeOpen(false);
+                  setIsCustomizeSuccessOpen(true);
+                }}
+                className="flex-1 bg-[#FF5500] hover:bg-[#E04B00] text-white text-sm font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center cursor-pointer shadow-sm shadow-[#FF5500]/10"
+              >
+                <span>اعتمد</span>
+              </button>
+
+              {/* Left: Cancel Button */}
+              <button
+                onClick={() => setIsCustomizeOpen(false)}
+                className="flex-1 bg-[#FFF0F0] hover:bg-[#FEE2E2] text-[#EF4444] text-sm font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center cursor-pointer"
+              >
+                <span>إلغاء</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ── Customize Success Popup Modal ── */}
+      {isCustomizeSuccessOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs transition-opacity duration-300">
+          <div className="bg-white rounded-3xl w-full max-w-[420px] p-12 pb-14 relative text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200" dir="rtl">
+            {/* Top-Left Close button */}
+            <button
+              onClick={() => setIsCustomizeSuccessOpen(false)}
+              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-[#FFF5F5] hover:bg-[#FFEAE8] flex items-center justify-center text-[#EF4444] transition-colors cursor-pointer"
+              title="إغلاق"
+            >
+              <Icon icon="lucide:x" className="w-4 h-4" />
+            </button>
+
+            {/* Message */}
+            <h3 className="text-[18px] font-bold text-[#1E293B] mb-2 leading-relaxed">
+              تم اعتماد تخصيص المراجعات
             </h3>
 
             {/* Thumbs-up floating badge on the bottom border */}
