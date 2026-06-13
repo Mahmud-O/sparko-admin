@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -26,6 +27,18 @@ const statusConfig: Record<string, { label: string; textClass: string; bgClass: 
     bgClass: "bg-[#FFF0E8]",
     borderClass: "border-[#FFD5C2]"
   },
+  Pending: {
+    label: "تحت المراجعة",
+    textClass: "text-[#FF5500]",
+    bgClass: "bg-[#FFF0E8]",
+    borderClass: "border-[#FFD5C2]"
+  },
+  pending: {
+    label: "تحت المراجعة",
+    textClass: "text-[#FF5500]",
+    bgClass: "bg-[#FFF0E8]",
+    borderClass: "border-[#FFD5C2]"
+  },
   PendingApproval: {
     label: "تحت الموافقة",
     textClass: "text-[#D97706]",
@@ -39,16 +52,16 @@ const statusConfig: Record<string, { label: string; textClass: string; bgClass: 
     borderClass: "border-[#FED7AA]"
   },
   Approved: {
-    label: "تمت الموافقة",
+    label: "تم القبول",
     textClass: "text-[#34DEA7]",
-    bgClass: "bg-[#E6FAF4]",
+    bgClass: "bg-[#EFFDF8]",
     borderClass: "border-[#A7F3D0]"
   },
   Rejected: {
     label: "مرفوض",
     textClass: "text-[#EF4444]",
-    bgClass: "bg-[#FEE2E2]",
-    borderClass: "border-[#FCA5A5]"
+    bgClass: "bg-[#FEF2F2]",
+    borderClass: "border-[#FECFCF]"
   }
 };
 
@@ -165,9 +178,9 @@ export default function ReviewsPage() {
       const orgTotal = rawRes.items.filter(x => x.requestType === 'Organization' || x.requestType === 'EditOrg').length;
       const programTotal = rawRes.items.filter(x => x.requestType === 'Program').length;
       
-      setTraineeCount(traineeTotal > 0 ? traineeTotal : 4);
-      setOrgCount(orgTotal > 0 ? orgTotal : 4);
-      setProgramCount(programTotal > 0 ? programTotal : 5);
+      setTraineeCount(traineeTotal);
+      setOrgCount(orgTotal);
+      setProgramCount(programTotal);
 
     } catch (err) {
       console.error("Failed to load review logs", err);
@@ -291,7 +304,7 @@ export default function ReviewsPage() {
     <div className="space-y-6" dir="rtl">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-border pb-px">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-border  bg-white p-6  rounded-xl">
         <div className="text-right space-y-1">
           <h1 className="text-[22px] font-black text-[#1E293B]">المراجعات</h1>
           <p className="text-xs text-[#94A3B8]">إدارة وتنظيم</p>
@@ -312,53 +325,50 @@ export default function ReviewsPage() {
       </div>
 
       {/* ── Stats Cards Row ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-6 rounded-3xl">
         {/* Purple Card - Trainees */}
         <div 
-          onClick={() => { setTypeFilter("User"); setPage(1); }}
-          className={`bg-white border rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:shadow-sm transition-all ${
-            typeFilter === 'User' ? 'border-purple-500 ring-2 ring-purple-100' : 'border-border'
-          }`}
+          className="bg-white border border-[#E2E8F0] rounded-3xl p-4 h-31 flex flex-col gap-3 justify-between transition-all shadow-sm"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
-              <Icon icon="lucide:file-text" className="w-5 h-5 text-purple-600" />
-            </div>
-            <span className="text-[13px] font-bold text-[#1E293B]">طلب تسجيل مستفيد</span>
+          <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] border border-[#F3E8FF] flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#8B5CF6]">
+              <path d="M12.75 15H2.25C1.84 15 1.4625 14.9 1.1175 14.7C0.7725 14.5 0.5 14.2275 0.3 13.8825C0.1 13.5375 0 13.16 0 12.75V0.75C0 0.54 0.0725 0.3625 0.2175 0.217501C0.3625 0.0725002 0.54 0 0.75 0H11.25C11.46 0 11.6375 0.0725002 11.7825 0.217501C11.9275 0.3625 12 0.54 12 0.75V9.75H15V12.75C15 13.16 14.9 13.5375 14.7 13.8825C14.5 14.2275 14.2275 14.5 13.8825 14.7C13.5375 14.9 13.16 15 12.75 15ZM12 11.25V12.75C12 12.96 12.0725 13.1375 12.2175 13.2825C12.3625 13.4275 12.54 13.5 12.75 13.5C12.96 13.5 13.1375 13.4275 13.2825 13.2825C13.4275 13.1375 13.5 12.96 13.5 12.75V11.25H12ZM10.5 13.5V1.5H1.5V12.75C1.5 12.96 1.5725 13.1375 1.7175 13.2825C1.8625 13.4275 2.04 13.5 2.25 13.5H10.5ZM3 3.75H9V5.25H3V3.75ZM3 6.75H9V8.25H3V6.75ZM3 9.75H6.75V11.25H3V9.75Z" fill="currentColor"/>
+            </svg>
           </div>
-          <span className="text-[26px] font-black text-[#1E293B]">{traineeCount}</span>
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[14px] font-bold text-[#1E293B]">تسجيل مستفيد</span>
+            <span className="text-[26px] font-bold text-[#1E293B]">{traineeCount}</span>
+          </div>
         </div>
 
         {/* Teal Card - Organizations */}
         <div 
-          onClick={() => { setTypeFilter("Organization"); setPage(1); }}
-          className={`bg-white border rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:shadow-sm transition-all ${
-            typeFilter === 'Organization' ? 'border-teal-500 ring-2 ring-teal-100' : 'border-border'
-          }`}
+          className="bg-white border border-[#E2E8F0] rounded-3xl p-4 h-31 flex flex-col gap-3 justify-between transition-all shadow-sm"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
-              <Icon icon="lucide:file-text" className="w-5 h-5 text-teal-600" />
-            </div>
-            <span className="text-[13px] font-bold text-[#1E293B]">طلب تسجيل جهة</span>
+          <div className="w-10 h-10 rounded-xl bg-[#ECFDF5] border border-[#D1FAE5] flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#10B981]">
+              <path d="M12.75 15H2.25C1.84 15 1.4625 14.9 1.1175 14.7C0.7725 14.5 0.5 14.2275 0.3 13.8825C0.1 13.5375 0 13.16 0 12.75V0.75C0 0.54 0.0725 0.3625 0.2175 0.217501C0.3625 0.0725002 0.54 0 0.75 0H11.25C11.46 0 11.6375 0.0725002 11.7825 0.217501C11.9275 0.3625 12 0.54 12 0.75V9.75H15V12.75C15 13.16 14.9 13.5375 14.7 13.8825C14.5 14.2275 14.2275 14.5 13.8825 14.7C13.5375 14.9 13.16 15 12.75 15ZM12 11.25V12.75C12 12.96 12.0725 13.1375 12.2175 13.2825C12.3625 13.4275 12.54 13.5 12.75 13.5C12.96 13.5 13.1375 13.4275 13.2825 13.2825C13.4275 13.1375 13.5 12.96 13.5 12.75V11.25H12ZM10.5 13.5V1.5H1.5V12.75C1.5 12.96 1.5725 13.1375 1.7175 13.2825C1.8625 13.4275 2.04 13.5 2.25 13.5H10.5ZM3 3.75H9V5.25H3V3.75ZM3 6.75H9V8.25H3V6.75ZM3 9.75H6.75V11.25H3V9.75Z" fill="currentColor"/>
+            </svg>
           </div>
-          <span className="text-[26px] font-black text-[#1E293B]">{orgCount}</span>
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[14px] font-bold text-[#1E293B]">تسجيل جهة</span>
+            <span className="text-[26px] font-bold text-[#1E293B]">{orgCount}</span>
+          </div>
         </div>
 
         {/* Yellow Card - Programs */}
         <div 
-          onClick={() => { setTypeFilter("Program"); setPage(1); }}
-          className={`bg-white border rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:shadow-sm transition-all ${
-            typeFilter === 'Program' ? 'border-amber-500 ring-2 ring-amber-100' : 'border-border'
-          }`}
+          className="bg-white border border-[#E2E8F0] rounded-3xl p-4 h-31 flex flex-col gap-3 justify-between transition-all shadow-sm"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-              <Icon icon="lucide:file-text" className="w-5 h-5 text-amber-500" />
-            </div>
-            <span className="text-[13px] font-bold text-[#1E293B]">طلب نشر برنامج</span>
+          <div className="w-10 h-10 rounded-xl bg-[#FFFBEB] border border-[#FEF08A] flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#F59E0B]">
+              <path d="M12.75 15H2.25C1.84 15 1.4625 14.9 1.1175 14.7C0.7725 14.5 0.5 14.2275 0.3 13.8825C0.1 13.5375 0 13.16 0 12.75V0.75C0 0.54 0.0725 0.3625 0.2175 0.217501C0.3625 0.0725002 0.54 0 0.75 0H11.25C11.46 0 11.6375 0.0725002 11.7825 0.217501C11.9275 0.3625 12 0.54 12 0.75V9.75H15V12.75C15 13.16 14.9 13.5375 14.7 13.8825C14.5 14.2275 14.2275 14.5 13.8825 14.7C13.5375 14.9 13.16 15 12.75 15ZM12 11.25V12.75C12 12.96 12.0725 13.1375 12.2175 13.2825C12.3625 13.4275 12.54 13.5 12.75 13.5C12.96 13.5 13.1375 13.4275 13.2825 13.2825C13.4275 13.1375 13.5 12.96 13.5 12.75V11.25H12ZM10.5 13.5V1.5H1.5V12.75C1.5 12.96 1.5725 13.1375 1.7175 13.2825C1.8625 13.4275 2.04 13.5 2.25 13.5H10.5ZM3 3.75H9V5.25H3V3.75ZM3 6.75H9V8.25H3V6.75ZM3 9.75H6.75V11.25H3V9.75Z" fill="currentColor"/>
+            </svg>
           </div>
-          <span className="text-[26px] font-black text-[#1E293B]">{programCount}</span>
+          <div className="flex w-full items-center justify-between">
+            <div className="text-[14px] font-bold text-[#1E293B]">نشر برنامج</div>
+            <div className="text-[26px] font-bold text-[#1E293B]">{programCount}</div>
+          </div>
         </div>
       </div>
 
@@ -469,15 +479,15 @@ export default function ReviewsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-right border-collapse">
             <thead>
-              <tr className="bg-surface border-b border-border text-xs font-bold text-[#64748B]">
+              <tr className="bg-white text-right border-b border-gray-50  text-xs  text-[#94A3B8]">
                 <th className="py-4 px-6 whitespace-nowrap">نوع الطلب</th>
                 <th className="py-4 px-6 whitespace-nowrap">الاسم</th>
-                <th className="py-4 px-6 whitespace-nowrap">تاريخ الطلب</th>
-                <th className="py-4 px-6 whitespace-nowrap">الحالة</th>
-                <th className="py-4 px-6 text-left">الإجراءات</th>
+                <th className="py-4 px-6 whitespace-nowrap text-center">تاريخ الطلب</th>
+                <th className="py-4 px-6 whitespace-nowrap text-center">الحالة</th>
+                <th className="py-4 px-6 text-center">الإجراءات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border text-xs text-text-primary">
+            <tbody className="divide-y divide-gray-50 text-xs text-text-primary">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-text-muted">
@@ -498,12 +508,39 @@ export default function ReviewsPage() {
                 </tr>
               ) : (
                 logs.map((item) => {
-                  const status = statusConfig[item.status] || {
-                    label: item.status,
-                    textClass: "text-text-primary",
-                    bgClass: "bg-surface",
-                    borderClass: "border-border"
-                  };
+                  let status = statusConfig[item.status];
+                  if (!status) {
+                    const statusLower = (item.status || "").toLowerCase();
+                    if (statusLower.includes("pending")) {
+                      status = {
+                        label: "تحت المراجعة",
+                        textClass: "text-[#FF5500]",
+                        bgClass: "bg-[#FFF7ED]",
+                        borderClass: "border-[#FEDBB2]"
+                      };
+                    } else if (statusLower.includes("approve")) {
+                      status = {
+                        label: "تم القبول",
+                        textClass: "text-[#34DEA7]",
+                        bgClass: "bg-[#E6FAF4]",
+                        borderClass: "border-[#A7F3D0]"
+                      };
+                    } else if (statusLower.includes("reject")) {
+                      status = {
+                        label: "مرفوض",
+                        textClass: "text-[#EF4444]",
+                        bgClass: "bg-[#FEF2F2]",
+                        borderClass: "border-[#FECFCF]"
+                      };
+                    } else {
+                      status = {
+                        label: item.status || "—",
+                        textClass: "text-[#FF5500]",
+                        bgClass: "bg-[#FFF0E8]",
+                        borderClass: "border-[#FFD5C2]"
+                      };
+                    }
+                  }
                   const dateStr = item.requestDate ? new Date(item.requestDate).toLocaleDateString('zh-Hans-CN', {
                     year: 'numeric',
                     month: '2-digit',
@@ -515,23 +552,23 @@ export default function ReviewsPage() {
                       <td className="py-4 px-6 font-medium text-[#64748B]">
                         {typeConfig[item.requestType] || item.requestType}
                       </td>
-                      <td className="py-4 px-6 font-bold text-[#1E293B]">
+                      <td className="py-4 px-6  text-[#1E293B]">
                         {item.name || "—"}
                       </td>
-                      <td className="py-4 px-6 text-[#94A3B8] font-sans">
+                      <td className="py-4 px-6 text-[#94A3B8] text-center font-sans">
                         {dateStr}
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 text-center">
                         <span
-                          className={`inline-flex items-center justify-center px-3 py-1 rounded-full font-bold text-[10px] border ${status.bgClass} ${status.textClass} ${status.borderClass}`}
+                          className={`inline-flex items-center justify-center px-4 py-2 rounded-full font-bold text-[10px] w-[80%] whitespace-nowrap ${status.textClass} ${status.bgClass} ${status.borderClass} border`}
                         >
                           {status.label}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-left">
+                      <td className="py-4 px-6 flex items-center justify-center ">
                         <button
                           onClick={() => handleOpenPreview(item)}
-                          className="text-xs font-bold text-[#0056CC] hover:text-[#004099] hover:underline transition-colors px-3 py-1.5 rounded-lg hover:bg-[#0056CC]/5 cursor-pointer"
+                          className="text-xs font-bold text-[#0107FF] hover:text-[#004099] hover:underline transition-colors px-3.5 pl-3 py-1.5 rounded-lg hover:bg-[#0056CC]/5 cursor-pointer"
                         >
                           معاينة
                         </button>
@@ -546,7 +583,7 @@ export default function ReviewsPage() {
 
         {/* ── Table Pagination Footer ── */}
         {!loading && logs.length > 0 && (
-          <div className="p-4 border-t border-border flex items-center justify-between text-xs text-text-secondary bg-surface">
+          <div className="p-4 border-t border-border flex items-center justify-between text-xs text-text-secondary bg-white">
             <span>
               عرض {Math.min((page - 1) * pageSize + 1, totalCount)}-{Math.min(page * pageSize, totalCount)} من أصل {totalCount} سجلات
             </span>
@@ -593,11 +630,11 @@ export default function ReviewsPage() {
 
       {/* ── Preview Modal ("المعاينة") ── */}
       {isPreviewOpen && selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs transition-opacity duration-300">
-          <div className="bg-white rounded-[24px] w-full max-w-[650px] shadow-2xl border border-border flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200" dir="rtl">
+        <div className="fixed inset-0 z-50  flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs transition-opacity duration-300">
+          <div className="bg-white rounded-3xl w-full max-w-162.5 shadow-2xl border border-border flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200" dir="rtl">
             
             {/* Modal Header */}
-            <div className="p-6 pb-2 flex items-center justify-between">
+            <div className="relative p-6 pb-2 flex items-center justify-between">
               {/* Title & Icon (Right side in RTL) */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#64748B]">
@@ -612,16 +649,16 @@ export default function ReviewsPage() {
               </div>
               {/* Close Button (Left side in RTL) */}
               <button
-                onClick={() => setIsPreviewOpen(false)}
-                className="text-[#94A3B8] hover:text-[#64748B] transition-colors"
-                title="إغلاق"
-              >
-                <Icon icon="lucide:x" className="w-5 h-5" />
-              </button>
+              onClick={() => setIsPreviewOpen(false)}
+              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-gray-100 text-text-primary hover:bg-gray-200 flex items-center justify-center  transition-colors cursor-pointer"
+              title="إغلاق"
+            >
+              <Icon icon="lucide:x" className="w-4 h-4" />
+            </button>
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar text-right">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar text-right h-[65vh]">
               
               {loadingPreview ? (
                 <div className="py-20 flex flex-col items-center justify-center gap-3">
@@ -804,7 +841,7 @@ export default function ReviewsPage() {
                     return (
                       <div className="space-y-4">
                         <h4 className="text-md font-bold text-[#1E293B]">معلومات أساسية</h4>
-                        <div className="bg-gray-100 rounded-[20px] p-5 space-y-4">
+                        <div className="bg-gray-50 rounded-[20px] p-5 space-y-4">
                           {fields.map((f, idx) => (
                             <div key={idx} className="flex justify-between items-center text-[13px]">
                               {/* Right: Label */}
@@ -846,7 +883,7 @@ export default function ReviewsPage() {
                         <button
                           type="button"
                           onClick={() => setRejectMode(false)}
-                          className={`p-4 rounded-xl border flex items-center justify-center gap-3 transition-all cursor-pointer ${
+                          className={`p-4 rounded-xl border flex items-center justify-start gap-3 transition-all cursor-pointer ${
                             !rejectMode
                               ? "border-[#34DEA7] bg-[#E6FAF4] text-[#10B981]"
                               : "border-[#E2E8F0] bg-white text-[#1E293B]"
@@ -855,7 +892,7 @@ export default function ReviewsPage() {
                           <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                             !rejectMode ? "border-[#34DEA7]" : "border-[#CBD5E1]"
                           }`}>
-                            {!rejectMode && <div className="w-2.5 h-2.5 rounded-full bg-[#34DEA7]" />}
+                            {!rejectMode && <div className="w-3.5 h-3.5 rounded-full bg-[#34DEA7]" />}
                           </div>
                           <span className={`font-bold text-sm ${!rejectMode ? "text-[#10B981]" : "text-[#1E293B]"}`}>قبول الطلب</span>
                         </button>
@@ -864,7 +901,7 @@ export default function ReviewsPage() {
                         <button
                           type="button"
                           onClick={() => setRejectMode(true)}
-                          className={`p-4 rounded-xl border flex items-center justify-center gap-3 transition-all cursor-pointer ${
+                          className={`p-4 rounded-xl border flex items-center justify-start gap-3 transition-all cursor-pointer ${
                             rejectMode
                               ? "border-[#EF4444] bg-[#FEE2E2] text-[#EF4444]"
                               : "border-[#E2E8F0] bg-white text-[#1E293B]"
@@ -873,7 +910,7 @@ export default function ReviewsPage() {
                           <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                             rejectMode ? "border-[#EF4444]" : "border-[#CBD5E1]"
                           }`}>
-                            {rejectMode && <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />}
+                            {rejectMode && <div className="w-3.5 h-3.5 rounded-full bg-[#EF4444]" />}
                           </div>
                           <span className={`font-bold text-sm ${rejectMode ? "text-[#EF4444]" : "text-[#1E293B]"}`}>رفض الطلب</span>
                         </button>
@@ -947,17 +984,14 @@ export default function ReviewsPage() {
       {/* ── Success Popup Modal ── */}
       {isSuccessOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs transition-opacity duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-[420px] p-12 pb-14 relative text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200" dir="rtl">
+          <div className="bg-white rounded-3xl w-full max-w-105 p-12 pb-14 relative text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200" dir="rtl">
             {/* Close button */}
             <button
-              onClick={() => {
-                setIsSuccessOpen(false);
-                setIsPreviewOpen(false); // Close both
-              }}
-              className="absolute top-5 left-5 w-7 h-7 rounded-full bg-[#FFF0F0] hover:bg-[#FEE2E2] flex items-center justify-center text-[#EF4444] transition-colors"
+              onClick={() => setIsSuccessOpen(false)}
+              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-gray-100 text-text-primary hover:bg-gray-200 flex items-center justify-center text-text-placeholder transition-colors cursor-pointer"
               title="إغلاق"
             >
-              <Icon icon="lucide:x" className="w-3.5 h-3.5" />
+              <Icon icon="lucide:x" className="w-4 h-4" />
             </button>
 
             {/* Message */}
@@ -974,13 +1008,13 @@ export default function ReviewsPage() {
       )}
       {/* ── Customize Reviews Modal ("تخصيص المراجعات") ── */}
       {isCustomizeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs transition-opacity duration-300">
-          <div className="bg-white rounded-[24px] w-full max-w-[500px] shadow-2xl p-8 relative flex flex-col space-y-6 text-right animate-in fade-in zoom-in-95 duration-200" dir="rtl">
+        <div className="fixed  inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs transition-opacity duration-300">
+          <div className="bg-white  rounded-3xl w-full max-w-125 shadow-2xl p-8 relative flex flex-col space-y-6 text-right animate-in fade-in zoom-in-95 duration-200" dir="rtl">
             
             {/* Top-Left Close Button */}
             <button
               onClick={() => setIsCustomizeOpen(false)}
-              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-[#FFF5F5] hover:bg-[#FFEAE8] flex items-center justify-center text-[#EF4444] transition-colors cursor-pointer"
+              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-gray-100 text-text-primary hover:bg-gray-200 flex items-center justify-center  transition-colors cursor-pointer"
               title="إغلاق"
             >
               <Icon icon="lucide:x" className="w-4 h-4" />
@@ -992,7 +1026,7 @@ export default function ReviewsPage() {
             </div>
 
             {/* Modal Body */}
-            <div className="space-y-8">
+            <div className="space-y-8 h-[65vh]">
               
               {/* Settings Header (righted) */}
               <div className="text-right">
@@ -1006,7 +1040,7 @@ export default function ReviewsPage() {
                 {/* Checkbox Card */}
                 <div 
                   onClick={() => setAutoAcceptBeneficiary(!autoAcceptBeneficiary)}
-                  className="flex gap-4 justify-start items-center p-4 border border-[#E2E8F0] rounded-[16px] cursor-pointer bg-white transition-all hover:border-[#FF5500]/30 select-none"
+                  className="flex gap-4 justify-start items-center p-4 border border-[#E2E8F0] rounded-2xl cursor-pointer bg-white transition-all hover:border-[#FF5500]/30 select-none"
                 >
                   {/* Left: Checkbox */}
                   <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors shrink-0 ${
@@ -1022,7 +1056,7 @@ export default function ReviewsPage() {
 
                 {/* Helper Warning Message */}
                 <div className="flex items-start justify-start gap-2 text-text-muted text-xs font-semibold text-right" dir="rtl">
-                  <Icon icon="lucide:lightbulb" className="w-4.5 h-4.5 text-[#D97706] shrink-0 mt-0.5" />
+                  <Icon icon="lucide:lightbulb" className="w-4.5 h-4.5 text-[#DBD300] shrink-0 mt-0.5" />
                   <span className="leading-relaxed">ضبط هذه الخيارات يعني تفعيل قبول تلقائي لكل تسجيل جديد، دون مراجعة يدوية</span>
                 </div>
               </div>
@@ -1036,40 +1070,41 @@ export default function ReviewsPage() {
                   <button
                     type="button"
                     onClick={() => setReviewMechanism("Automatic")}
-                    className={`p-4 rounded-[16px] border flex justify-between items-center transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border flex justify-start gap-2 items-center transition-all cursor-pointer ${
                       reviewMechanism === "Automatic"
                         ? "border-[#FF5500] bg-white text-[#FF5500]"
                         : "border-[#E2E8F0] bg-white text-[#1E293B]"
                     }`}
                   >
-                    <span className={`font-bold text-[13px] ${reviewMechanism === "Automatic" ? "text-[#FF5500]" : "text-[#1E293B]"}`}>
+                    
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                      reviewMechanism === "Automatic" ? "border-primary" : "border-[#CBD5E1]"
+                    }`}>
+                      {reviewMechanism === "Automatic" && <div className="w-3.5 h-3.5 rounded-full bg-primary my-0 mx-auto" />}
+                    </div>
+                    <span className={`font-bold text-[13px] ${reviewMechanism === "Automatic" ? "text-primary" : "text-[#1E293B]"}`}>
                       تلقائي
                     </span>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                      reviewMechanism === "Automatic" ? "border-[#FF5500]" : "border-[#CBD5E1]"
-                    }`}>
-                      {reviewMechanism === "Automatic" && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5500]" />}
-                    </div>
                   </button>
 
                   {/* Option 2: Manual (Renders on the left in RTL) */}
                   <button
                     type="button"
                     onClick={() => setReviewMechanism("Manual")}
-                    className={`p-4 rounded-[16px] border flex justify-between items-center transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border flex justify-start gap-2 items-center transition-all cursor-pointer ${
                       reviewMechanism === "Manual"
                         ? "border-[#FF5500] bg-white text-[#FF5500]"
                         : "border-[#E2E8F0] bg-white text-[#1E293B]"
                     }`}
                   >
-                    <span className={`font-bold text-[13px] ${reviewMechanism === "Manual" ? "text-[#FF5500]" : "text-[#1E293B]"}`}>
-                      يدوي
-                    </span>
                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                       reviewMechanism === "Manual" ? "border-[#FF5500]" : "border-[#CBD5E1]"
                     }`}>
-                      {reviewMechanism === "Manual" && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5500]" />}
+                      {reviewMechanism === "Manual" && <div className="w-4 h-4 rounded-full bg-[#FF5500]" />}
                     </div>
+                    <span className={`font-bold text-right text-[13px] ${reviewMechanism === "Manual" ? "text-[#FF5500]" : "text-[#1E293B]"}`}>
+                      يدوي
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1105,11 +1140,11 @@ export default function ReviewsPage() {
       {/* ── Customize Success Popup Modal ── */}
       {isCustomizeSuccessOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs transition-opacity duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-[420px] p-12 pb-14 relative text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200" dir="rtl">
+          <div className="bg-white rounded-3xl w-full max-w-105 p-12 pb-14 relative text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200" dir="rtl">
             {/* Top-Left Close button */}
             <button
               onClick={() => setIsCustomizeSuccessOpen(false)}
-              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-[#FFF5F5] hover:bg-[#FFEAE8] flex items-center justify-center text-[#EF4444] transition-colors cursor-pointer"
+              className="absolute top-5 left-5 w-8 h-8 rounded-full bg-gray-100 text-text-primary hover:bg-gray-200 flex items-center justify-center  transition-colors cursor-pointer"
               title="إغلاق"
             >
               <Icon icon="lucide:x" className="w-4 h-4" />

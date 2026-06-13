@@ -15,20 +15,19 @@ interface SidebarItem {
 
 /* ─── Admin sidebar items ────────────────────────────────────────────────── */
 const adminSidebarItems: SidebarItem[] = [
-  { name: "الرئيسية", href: "/dashboard", icon: "lucide:home" },
-  { name: "المراجعات", href: "/dashboard/reviews", icon: "lucide:clipboard-check" },
-  { name: "الجهات", href: "/dashboard/organizations", icon: "lucide:building-2" },
-  { name: "المستفيدين", href: "/dashboard/beneficiaries", icon: "lucide:users" },
-  { name: "البرامج", href: "/dashboard/programs", icon: "lucide:layout-grid" },
-  { name: "الانضمامات", href: "/dashboard/enrollments", icon: "lucide:user-plus" },
-  { name: "المهام", href: "/dashboard/tasks", icon: "lucide:check-square" },
-  { name: "التقييمات والتقارير", href: "/dashboard/evaluations", icon: "lucide:bar-chart-3" },
-  { name: "الاشتراكات والخدمات", href: "/dashboard/subscriptions", icon: "lucide:credit-card" },
-  { name: "المدفوعات", href: "/dashboard/payments", icon: "lucide:wallet" },
-  { name: "الدعم والتذاكر", href: "/dashboard/support", icon: "lucide:headset" },
-  { name: "الموظفون والصلاحيات", href: "/dashboard/staff", icon: "lucide:shield" },
-  { name: "سجل النشاطات", href: "/dashboard/activity", icon: "lucide:history" },
-  { name: "الإعدادات", href: "/dashboard/settings", icon: "lucide:settings" },
+  { name: "الرئيسية", href: "/dashboard", icon: "/icons/الرئيسية.svg" },
+  { name: "الطلبات والمراجعات", href: "/dashboard/reviews", icon: "/icons/الطلبات-والمراجعه.svg" },
+  { name: "الجهات", href: "/dashboard/organizations", icon: "/icons/الجهات.svg" },
+  { name: "المستفيدين", href: "/dashboard/beneficiaries", icon: "/icons/المستفيدين.svg" },
+  { name: "البرامج", href: "/dashboard/programs", icon: "/icons/البرامج.svg" },
+  { name: "الانضمامات", href: "/dashboard/enrollments", icon: "/icons/الانضمامات.svg" },
+  { name: "المهام", href: "/dashboard/tasks", icon: "/icons/المهام.svg" },
+  { name: "التقييمات", href: "/dashboard/evaluations", icon: "/icons/التقيمات.svg" },
+  { name: "المخرجات المهنية", href: "/dashboard/subscriptions", icon: "/icons/المخرجات-المهنية.svg" },
+  { name: "إدارة مجتمع Sparko", href: "/dashboard/community", icon: "/icons/sparko-set.svg" },
+  { name: "المدفوعات", href: "/dashboard/payments", icon: "/icons/المدفوعات.svg" },
+  { name: "الإدارة و الصلاحيات", href: "/dashboard/settings", icon: "/icons/الصلاحية.svg" },
+  { name: "سجل الإدارة", href: "/dashboard/activity", icon: "/icons/سجل.svg" },
 ];
 
 export default function Sidebar() {
@@ -79,7 +78,7 @@ export default function Sidebar() {
           className="p-2 rounded-lg text-[#64748B] hover:bg-[#F8F9FA] hover:text-[#1E293B] transition-all shrink-0"
           aria-label="toggle sidebar"
         >
-          <Icon icon={isOpen ? "lucide:circle-arrow-right" : "lucide:menu"} className="w-6 h-6 text-primary" />
+          <Icon icon={isOpen ? "lucide:circle-chevron-left" : "lucide:menu"} className="w-6 h-6 text-primary" />
         </button>
       </div>
 
@@ -96,14 +95,22 @@ export default function Sidebar() {
                 isOpen ? "px-4 py-2.5" : "px-0 py-2.5 justify-center"
               } ${
                 isActive
-                  ? "bg-[#FFF0E8] text-[#FF5500] font-bold"
+                  ? "bg-[#FFF0E8] text-[#FF5500] font-bold border-r-[3px] border-[#FF5500]"
                   : "text-[#64748B] hover:bg-[#F8F9FA] hover:text-[#1E293B]"
               }`}
               title={!isOpen ? item.name : undefined}
             >
-              <Icon
-                icon={item.icon}
-                className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#FF5500]" : "text-[#94A3B8]"}`}
+              <Image
+                src={item.icon}
+                alt={item.name}
+                width={20}
+                height={20}
+                className="shrink-0 object-contain"
+                style={{
+                  filter: isActive
+                    ? "brightness(0) saturate(100%) invert(43%) sepia(99%) saturate(4678%) hue-rotate(12deg) brightness(101%) contrast(101%)"
+                    : "none",
+                }}
               />
               {isOpen && <span>{item.name}</span>}
             </Link>
@@ -120,7 +127,13 @@ export default function Sidebar() {
           }`}
           title={!isOpen ? "تسجيل الخروج" : undefined}
         >
-          <Icon icon="lucide:log-out" className="w-[18px] h-[18px] shrink-0" />
+          <Image
+            src="/icons/تسجيل الدخول.svg"
+            alt="تسجيل الخروج"
+            width={18}
+            height={18}
+            className="shrink-0 object-contain "
+          />
           {isOpen && <span>تسجيل الخروج</span>}
         </button>
       </div>

@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
 
   // OTP state
   const otp = useOtpInput(6);
-  const { seconds: countdown, isRunning: isCountdownRunning, start: startCountdown } = useCountdown(60);
+  const { seconds: countdown, isRunning: isCountdownRunning, start: startCountdown } = useCountdown(59);
   const [otpError, setOtpError] = useState<string | null>(null);
   const [otpLoading, setOtpLoading] = useState(false);
 
@@ -309,7 +309,7 @@ export default function AdminLoginPage() {
                   <div className="flex items-center justify-between gap-1.5 mt-4 mb-6 text-[13px] font-medium">
                     <span className="text-gray-500">لم يصلك الرمز؟</span>
                     {isCountdownRunning ? (
-                      <span className="text-primary">إعادة الإرسال خلال {countdown}</span>
+                      <span className="text-primary">إعادة الإرسال خلال 00:{countdown}</span>
                     ) : (
                       <button
                         type="button"

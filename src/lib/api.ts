@@ -88,7 +88,11 @@ export async function apiFetch(
   // Exception: auth endpoints (login) return 401 for wrong credentials;
   // those should surface the error in the form, not redirect away.
   if (response.status === 401) {
-    const isAuthEndpoint = endpoint.toLowerCase().includes('/account/login') || endpoint.toLowerCase().includes('/api/auth/login');
+    const isAuthEndpoint =
+      endpoint.toLowerCase().includes('/account/login') ||
+      endpoint.toLowerCase().includes('/api/auth/login') ||
+      endpoint.toLowerCase().includes('/api/admin/login') ||
+      endpoint.toLowerCase().includes('/api/admin/verify-otp');
     Cookies.remove('token', COOKIE_SECURE_OPTIONS);
     Cookies.remove('refreshToken', COOKIE_SECURE_OPTIONS);
     if (!isAuthEndpoint && IS_BROWSER) {

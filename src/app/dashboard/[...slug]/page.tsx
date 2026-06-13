@@ -183,8 +183,23 @@ const pageDataMap: Record<string, PageData> = {
       { col1: "سلطان الحربي", col2: "تعديل إعدادات", col3: "تم تغيير نمط التشغيل الافتراضي للجهات", col4: "منذ ساعة", col5: "ناجحة", statusColor: "#22C55E" },
     ],
   },
+  community: {
+    title: "إدارة مجتمع Sparko",
+    description: "إدارة التفاعلات والمشاركات والأنشطة المجتمعية في المنظومة",
+    stats: [
+      { label: "أعضاء المجتمع", value: 184, icon: "lucide:users", color: "#3B82F6", bg: "#EFF6FF" },
+      { label: "منشورات اليوم", value: 12, icon: "lucide:message-square", color: "#22C55E", bg: "#F0FDF4" },
+      { label: "فعاليات نشطة", value: 3, icon: "lucide:calendar", color: "#8B5CF6", bg: "#F5F3FF" },
+    ],
+    columns: ["العضو", "الجهة", "النشاط", "تاريخ الانضمام", "الحالة"],
+    rows: [
+      { col1: "أحمد بن عبدالله", col2: "STC", col3: "شارك في ورشة عمل", col4: "2026/06/07", col5: "نشط", statusColor: "#22C55E" },
+      { col1: "منى محمد الحربي", col2: "أرامكو", col3: "نشر مقالاً جديداً", col4: "2026/06/06", col5: "نشط", statusColor: "#22C55E" },
+      { col1: "خالد سعيد القحطاني", col2: "بنك الرياض", col3: "سجل في الفعالية القادمة", col4: "2026/06/05", col5: "نشط", statusColor: "#22C55E" },
+    ],
+  },
   settings: {
-    title: "الإعدادات العامة",
+    title: "الإدارة و الصلاحيات",
     description: "تحديث وضبط الخيارات والإعدادات العامة لمنظومة Sparko",
     stats: [
       { label: "إعدادات مفعلة", value: 12, icon: "lucide:toggle-left", color: "#3B82F6", bg: "#EFF6FF" },

@@ -111,7 +111,7 @@ export default function NotificationsModal({
     : notifications.filter((n) => n.isUnread);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="custom" className="w-[560px] max-h-[85vh] p-6 rounded-3xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="custom" className="w-140 h-[85vh] p-6 rounded-3xl">
       {/* ── Header ── */}
       <div className="shrink-0 space-y-5 mb-5">
         
@@ -183,7 +183,7 @@ export default function NotificationsModal({
       </div>
 
       {/* ── Notifications List ── */}
-      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-0.5">
+      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pl-3 pr-1">
         {filtered.map((notification) => (
           <div
             key={notification.id}
