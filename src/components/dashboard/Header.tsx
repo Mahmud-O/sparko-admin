@@ -1,29 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSidebarStore } from "@/store/useSidebarStore";
-import NotificationsModal, { initialNotifications, type Notification } from "@/components/dashboard/NotificationsModal";
+import NotificationsModal from "@/components/dashboard/NotificationsModal";
+import { useNotificationStore } from "@/store/useNotificationStore";
 
 export default function Header() {
   const { user } = useAuthStore();
   const { toggle } = useSidebarStore();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
 
-  const unreadCount = notifications.filter((n) => n.isUnread).length;
+  const {
+    notifications,
+    unreadCount,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+  } = useNotificationStore();
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isUnread: false })));
-  };
-
-  const handleMarkAsRead = (id: number) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isUnread: false } : n))
-    );
-  };
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   return (
     <>
@@ -94,8 +94,8 @@ export default function Header() {
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
         notifications={notifications}
-        onMarkAllAsRead={handleMarkAllAsRead}
-        onMarkAsRead={handleMarkAsRead}
+        onMarkAllAsRead={markAllAsRead}
+        onMarkAsRead={markAsRead}
       />
     </>
   );

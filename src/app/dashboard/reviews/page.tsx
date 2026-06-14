@@ -157,8 +157,8 @@ export default function ReviewsPage() {
   const [isCustomizeSuccessOpen, setIsCustomizeSuccessOpen] = useState(false);
 
   // Fetch unified logs
-  const fetchLogs = async () => {
-    setLoading(true);
+  const fetchLogs = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await getReviewLogsApi({
         Type: typeFilter,
@@ -185,15 +185,35 @@ export default function ReviewsPage() {
     } catch (err) {
       console.error("Failed to load review logs", err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
-  // Refetch on filter changes
+  // Refetch on filter changes, and setup polling & focus listeners for auto-refresh
   useEffect(() => {
-    if (isAdmin) {
-      fetchLogs();
-    }
+    if (!isAdmin) return;
+
+    // Initial fetch
+    fetchLogs();
+
+    // Setup periodic polling (every 10 seconds)
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchLogs(true); // silent fetch
+      }
+    }, 10000);
+
+    // Setup focus event handler to refresh immediately when user focuses the tab
+    const handleFocus = () => {
+      fetchLogs(true); // silent fetch
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [typeFilter, statusFilter, sortOption, page, isAdmin]);
 
   // Handle Search submit
@@ -287,6 +307,7 @@ export default function ReviewsPage() {
       }
       setSuccessMessage(msg);
       setIsSuccessOpen(true);
+      setIsPreviewOpen(false);
 
       // Refetch list in background
       fetchLogs();

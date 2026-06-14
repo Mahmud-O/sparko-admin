@@ -3,95 +3,14 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import Modal from "@/components/ui/Modal";
-
-/* ─── Types ─────────────────────────────────────────────────────────────────── */
-
-export interface Notification {
-  id: number;
-  title: string;
-  time: string;
-  category: string;
-  icon: string;
-  isUnread: boolean;
-}
-
-/* ─── Exported Mock Data ────────────────────────────────────────────────────── */
-
-export const initialNotifications: Notification[] = [
-  {
-    id: 1,
-    title: "جهة جديدة بانتظار المراجعة",
-    time: "منذ ٠٩ دقائق",
-    category: "طلبات المستفيدين",
-    icon: "lucide:user",
-    isUnread: true,
-  },
-  {
-    id: 2,
-    title: "مستفيد لم يكمل المستندات",
-    time: "منذ ساعة",
-    category: "تقييمات المستفيدين",
-    icon: "lucide:bell",
-    isUnread: true,
-  },
-  {
-    id: 3,
-    title: "تقييم جاهز للاعتماد",
-    time: "منذ ٣ ساعات",
-    category: "مهام المستفيدين",
-    icon: "lucide:bell",
-    isUnread: false,
-  },
-  {
-    id: 4,
-    title: "انضمام بانتظار الدفع",
-    time: "منذ ٣ ساعات",
-    category: "مهام المستفيدين",
-    icon: "lucide:bell",
-    isUnread: false,
-  },
-  {
-    id: 5,
-    title: "تم قبول فيصل العتيبي في برنامج الامتياز",
-    time: "أمس",
-    category: "طلبات المستفيدين",
-    icon: "lucide:user",
-    isUnread: false,
-  },
-  {
-    id: 6,
-    title: "فاتورة جديدة : دفع اشتراك مستفيد",
-    time: "قبل يومين",
-    category: "النظام والفوترة",
-    icon: "lucide:credit-card",
-    isUnread: false,
-  },
-  {
-    id: 7,
-    title: "هل تم تقييم مهام المستفيد اليوم؟",
-    time: "قبل ٣ أيام",
-    category: "مهام المستفيدين",
-    icon: "lucide:alert-triangle",
-    isUnread: false,
-  },
-  {
-    id: 8,
-    title: "تم اصدار تقرير مستفيد",
-    time: "قبل ٣ أيام",
-    category: "التقارير",
-    icon: "lucide:clipboard-list",
-    isUnread: false,
-  },
-];
-
-/* ─── Component ─────────────────────────────────────────────────────────────── */
+import { type Notification } from "@/store/useNotificationStore";
 
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
   notifications: Notification[];
   onMarkAllAsRead: () => void;
-  onMarkAsRead: (id: number) => void;
+  onMarkAsRead: (id: string) => void;
 }
 
 export default function NotificationsModal({
