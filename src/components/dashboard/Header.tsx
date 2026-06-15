@@ -9,21 +9,21 @@ import NotificationsModal from "@/components/dashboard/NotificationsModal";
 import { useNotificationStore } from "@/store/useNotificationStore";
 
 export default function Header() {
-  const { user } = useAuthStore();
-  const { toggle } = useSidebarStore();
+  const { user, isAuthenticated } = useAuthStore();
+  const toggle = useSidebarStore((state) => state.toggle);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const {
-    notifications,
-    unreadCount,
-    fetchNotifications,
-    markAsRead,
-    markAllAsRead,
-  } = useNotificationStore();
+  const notifications = useNotificationStore((state) => state.notifications);
+  const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const fetchNotifications = useNotificationStore((state) => state.fetchNotifications);
+  const markAsRead = useNotificationStore((state) => state.markAsRead);
+  const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isAuthenticated, fetchNotifications]);
 
   return (
     <>
@@ -64,9 +64,9 @@ export default function Header() {
         </div>
 
         {/* Left side: Language + Company Info */}
-        <div className="flex items-center gap-3 md:gap-6 shrink-0">
+        <div className="flex items-center gap-3 md:gap-6 min-w-0">
           {/* Language Selector */}
-          <div className="flex items-center gap-2 text-[13px] text-[#1E293B] cursor-pointer transition-colors">
+          <div className="flex items-center gap-2 text-[13px] text-[#1E293B] cursor-pointer transition-colors shrink-0">
             <div className="w-7 h-7 rounded-full overflow-hidden bg-[#006c35] ">
               <Image src="/saudi-arabia-48.svg" alt="SA" width={35} height={35} className="w-auto h-auto object-cover" />
             </div>
@@ -77,14 +77,19 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="w-px h-6 bg-border"></div>
+          <div className="w-px h-6 bg-border shrink-0"></div>
 
           {/* Company Badge */}
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="text-[14px] font-bold text-[#1E293B] bg-[#F8F9FA] px-2 py-1 rounded max-w-fit flex items-center justify-center">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0">
+            <div className="text-[14px] font-bold text-[#1E293B] bg-[#F8F9FA] px-2 py-1 rounded shrink-0 flex items-center justify-center">
               STC
             </div>
-            <span className="text-[12px] font-bold text-[#1E293B] hidden md:inline">شركة الاتصالات السعودية - STC</span>
+            <span 
+              className="text-[12px] font-bold text-[#1E293B] hidden md:inline truncate max-w-[120px] lg:max-w-[180px] xl:max-w-none"
+              title="شركة الاتصالات السعودية - STC"
+            >
+              شركة الاتصالات السعودية - STC
+            </span>
           </div>
         </div>
       </header>
