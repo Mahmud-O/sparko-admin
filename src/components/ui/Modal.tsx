@@ -55,14 +55,12 @@ export default function Modal({ isOpen, onClose, children, size = 'custom', clas
     }
   }, []);
 
+  // Manage modal open/close lifecycle (body overflow & focus restore)
   useEffect(() => {
     if (!isOpen) return;
 
     // Save current focus so we can restore it on close
     previousFocusRef.current = document.activeElement as HTMLElement;
-
-    document.addEventListener('keydown', handleEscape);
-    document.addEventListener('keydown', handleTabKey);
     document.body.style.overflow = 'hidden';
 
     // Focus the first interactive element inside the modal
@@ -73,10 +71,21 @@ export default function Modal({ isOpen, onClose, children, size = 'custom', clas
     });
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('keydown', handleTabKey);
       document.body.style.overflow = '';
       previousFocusRef.current?.focus();
+    };
+  }, [isOpen]);
+
+  // Manage keyboard event listeners (Escape key & Focus trap)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleTabKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleTabKey);
     };
   }, [isOpen, handleEscape, handleTabKey]);
 
