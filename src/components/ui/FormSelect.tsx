@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import type { SelectOption } from '@/lib/constants';
+import type { SelectOption } from '@/lib/types';
 
 interface FormSelectProps {
   label: string;

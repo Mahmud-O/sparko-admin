@@ -4,7 +4,7 @@ import {
   persistTokens,
   clearTokens,
 } from '@/lib/apiServices';
-import type { AuthData } from '@/lib/apiServices';
+import type { AuthData } from '@/lib/types';
 
 export interface User {
   id: string;

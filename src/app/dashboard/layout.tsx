@@ -18,17 +18,17 @@ export default function DashboardLayout({
   }, [hydrate]);
 
   return (
-    <div className="flex h-screen bg-surface overflow-hidden p-2 md:p-4 gap-2 md:gap-4" dir="rtl">
+    <div className="flex h-screen bg-surface overflow-hidden " dir="rtl">
       {/* Sidebar navigation */}
       <Sidebar />
 
       {/* Main content frame */}
-      <div className="flex-1 flex flex-col overflow-hidden gap-2 md:gap-4">
+      <div className="flex-1 flex flex-col px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 overflow-hidden gap-2 md:gap-4">
         {/* Top Header navbar */}
         <Header />
 
         {/* Content container */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto  custom-scrollbar">
           {children}
         </main>
       </div>

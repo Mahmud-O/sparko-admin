@@ -4,47 +4,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useAuthStore } from "@/store/useAuthStore";
-
-/* ─── Static Data (matching the design image exactly) ──────────────────────── */
-
-const pendingActions = [
-  { label: "طلبات  جهات", value: 14, icon: "ri:building-2-line", color: "#DBD300", bg: "#FFFBEB" },
-  { label: "مستفيدين تحت التوثيق", value: 28, icon: "lucide:user", color: "#8B5CF6", bg: "#F5F3FF" },
-  { label: "برامج بانتظار النشر", value: 7, icon: "lucide:book-open", color: "#4BE2B1", bg: "#EFFCF8" },
-  { label: "طلبات انضمام", value: 23, icon: "ri:clipboard-line", color: "#D97706", bg: "#FFF7ED" },
-];
-
-const overviewStats = [
-  { label: "جهات نشطة", value: 24, subLabel: "2+ هذا الشهر", icon: "ri:building-2-line", color: "#DBD300", bg: "#FFFBEB" },
-  { label: "برامج نشطة", value: 12, subLabel: "2+ جديدة", icon: "lucide:book-open", color: "#34DEA7", bg: "#EFFCF8" },
-  { label: "مستفيدين من التدريب", value: 147, subLabel: "+12 الأسبوع", icon: "lucide:users", color: "#8B5CF6", bg: "#F5F3FF" },
-  { label: "تذاكر مفتوحة", value: 8, subLabel: "3 عاجلة", icon: "ri:ticket-line", color: "#FF5500", bg: "#fff1eb" },
-];
-
-const topPrograms = [
-  { code: "PR", name: "برنامج تطوير المهارات الإدارية", org: "أرامكو", beneficiaries: 8, completion: 91, rating: 4.6, engagement: "92%" },
-  { code: "PR", name: "برنامج التدريب التعاوني تقنية", org: "STC", beneficiaries: 12, completion: 82, rating: 4.3, engagement: "95%" },
-  { code: "PR", name: "برنامج التدريب على خدمة العملاء", org: "بنك الرياض", beneficiaries: 5, completion: 65, rating: 3.8, engagement: "70%" },
-  { code: "PR", name: "برنامج التدريب على خدمة العملاء", org: "بنك الرياض", beneficiaries: 5, completion: 65, rating: 3.8, engagement: "70%" },
-  { code: "PR", name: "برنامج القيادة الإدارية المتقدمة", org: "STC", beneficiaries: 15, completion: 45, rating: 4.1, engagement: "88%" },
-  { code: "PR", name: "برنامج القيادة الإدارية المتقدمة", org: "STC", beneficiaries: 15, completion: 45, rating: 4.1, engagement: "88%" },
-  { code: "PR", name: "برنامج القيادة الإدارية المتقدمة", org: "STC", beneficiaries: 15, completion: 45, rating: 4.1, engagement: "88%" },
-];
-
-const recentEnrollments = [
-  { name: "سارة خالد الخليفي", program: "تطوير المهارات الإدارية", org: "أرامكو", date: "2026/05/06", status: "جديد", statusColor: "#DBD300", statusBg: "#fcfbeb",bgboredr:"#F6F3BD" },
-  { name: "فيد عبد السبيعي", program: "التدريب التعاوني لتقنية المعلومات", org: "STC", date: "2026/05/06", status: "مرسل للجهة", statusColor: "#2E34FF", statusBg: "#EFF6FF",bgboredr:"#CFE4FE" },
-  { name: "ليلى محمد الزهراني", program: "تحليل البيانات ، Python", org: "أرامكو", date: "2026/05/05", status: "بانتظار الدفع", statusColor: "#D97706", statusBg: "#FCF4EB",bgboredr:"#FDEAA2" },
-  { name: "عبدالله سعد المريخي", program: "خدمة العملاء الإحترافية", org: "بنك الرياض", date: "2026/05/04", status: "مقبول", statusColor: "#3FE0AC", statusBg: "#EFFCF8",bgboredr:"#A7F3D0" },
-];
-
-const topOrganizations = [
-  { rank: 1, name: "شركة الإتصالات STC", logo: "STC", logoBg: "#e0fafa", logoColor: "#059669", rating: 4.4, completion: 91, programs: 10, beneficiaries: 120 },
-  { rank: 2, name: "أرامكو السعودية", logo: "أرامكو", logoBg: "#DCFCE7", logoColor: "#16A34A", rating: 4.1, completion: 91, programs: 9, beneficiaries: 100 },
-  { rank: 3, name: "سابك", logo: "سابك", logoBg: "#EFF6FF", logoColor: "#3B82F6", rating: 4.7, completion: 91, programs: 7, beneficiaries: 70 },
-];
-
-/* ─── Component ─────────────────────────────────────────────────────────────── */
+import {
+  PENDING_ACTIONS,
+  OVERVIEW_STATS,
+  TOP_PROGRAMS,
+  RECENT_ENROLLMENTS,
+  TOP_ORGANIZATIONS,
+} from "@/lib/constants";
 
 export default function AdminDashboardPage() {
   const { isAdmin } = useAuthStore();
@@ -67,7 +33,7 @@ export default function AdminDashboardPage() {
           إجراءات بانتظار المراجعة
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {pendingActions.map((action, i) => (
+          {PENDING_ACTIONS.map((action, i) => (
             <div
               key={i}
               className="bg-white border border-[#E2E8F0] rounded-xl px-4 py-3.5 flex items-center justify-between cursor-pointer hover:shadow-sm transition-shadow"
@@ -103,7 +69,7 @@ export default function AdminDashboardPage() {
           نظرة عامة Overview
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {overviewStats.map((stat, i) => (
+          {OVERVIEW_STATS.map((stat, i) => (
             <div
               key={i}
               dir="rtl"
@@ -157,7 +123,7 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {topPrograms.map((p, i) => (
+                {TOP_PROGRAMS.map((p, i) => (
                   <tr key={i} className="border-b border-[#F1F5F9] last:border-b-0 hover:bg-[#FAFBFC] transition-colors">
                     {/* Program name + code badge */}
                     <td className="py-2.5 px-4">
@@ -211,7 +177,7 @@ export default function AdminDashboardPage() {
 
           {/* List */}
           <div className="divide-y divide-[#F1F5F9]">
-            {recentEnrollments.map((e, i) => (
+            {RECENT_ENROLLMENTS.map((e, i) => (
               <div key={i} className="px-4 py-3 flex items-center gap-3">
 
 
@@ -249,7 +215,7 @@ export default function AdminDashboardPage() {
           أفضل الجهات أداءً
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {topOrganizations.map((org) => (
+          {TOP_ORGANIZATIONS.map((org) => (
             <div
               key={org.rank}
               className="bg-white border border-[#E2E8F0] rounded-xl p-4 hover:shadow-sm transition-shadow"

@@ -10,6 +10,7 @@ import { forgetPasswordApi, resendOtpApi, resetPasswordApi } from '@/lib/apiServ
 import { useCountdown } from '@/hooks/useCountdown';
 import { useOtpInput } from '@/hooks/useOtpInput';
 import { forgotEmailSchema, forgotPhoneSchema, resetPasswordSchema, yupErrorsToRecord } from '@/lib/validation/schemas';
+import OtpInput from '@/components/ui/OtpInput';
 
 type Step = 'identifier' | 'otp' | 'password' | 'success';
 
@@ -284,28 +285,23 @@ function ForgotPasswordPageContent() {
       <p className="text-[14px] text-text-secondary text-right mb-7">
         قمنا بإرسال رسالة إلى رقم الجوال <button type="button" onClick={() => setStep('identifier')} className="text-[#005188] hover:underline font-medium">(تعديل)</button>
       </p>
-
       <form onSubmit={handleVerifyOtp} noValidate>
-        <div className="flex justify-between w-full mb-12" dir="ltr" onPaste={otp.handlePaste}>
-          {otp.digits.map((digit, i) => (
-            <input
-              key={i}
-              ref={(el) => { otp.refs.current[i] = el; }}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              placeholder="0"
-              onChange={(e) => otp.handleChange(i, e.target.value)}
-              onKeyDown={(e) => otp.handleKeyDown(i, e)}
-              className={[
-                'w-13 h-13 text-center text-[20px] font-medium rounded-2xl border focus:outline-none transition-all',
-                digit ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 bg-white text-gray-400 placeholder-gray-300',
-                (fieldErrors.otp || apiError) ? 'border-red-400 bg-red-50 text-red-500' : 'focus:border-primary',
-              ].join(' ')}
-            />
-          ))}
-        </div>
+        <OtpInput
+          digits={otp.digits}
+          refs={otp.refs}
+          onChange={otp.handleChange}
+          onKeyDown={otp.handleKeyDown}
+          onPaste={otp.handlePaste}
+          hasError={Boolean(fieldErrors.otp || apiError)}
+          className="flex justify-between w-full mb-12"
+          inputClassName={(digit, hasError) => [
+            'w-13 h-13 text-center text-[20px] font-medium rounded-2xl border focus:outline-none transition-all',
+            digit ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 bg-white text-gray-400 placeholder-gray-300',
+            hasError ? 'border-red-400 bg-red-50 text-red-500' : 'focus:border-primary',
+          ].join(' ')}
+          placeholder="0"
+          disabled={isLoading}
+        />
         <Err msg={fieldErrors.otp} />
 
         {apiError && (

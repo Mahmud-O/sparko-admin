@@ -1,6 +1,15 @@
 import Cookies from 'js-cookie';
 import { apiFetch } from '@/lib/api';
 import { parseBackendError } from '@/lib/errorParser';
+import type {
+  AuthData,
+  ReviewLogItem,
+  ReviewLogsResponse,
+  OrgRequestDetails,
+  TraineeRequestDetails,
+  ProgramRequestDetails,
+  DecisionPayload
+} from '@/lib/types';
 
 /** Apply secure flag only in production so dev HTTP works locally. */
 const IS_PRODUCTION = typeof process !== 'undefined' && process.env.NODE_ENV === 'production';
@@ -8,22 +17,6 @@ const COOKIE_SECURE: Cookies.CookieAttributes = IS_PRODUCTION ? { secure: true }
 
 // ─── Auth Response Types ──────────────────────────────────────────────────────
 
-export interface AuthData {
-  id: string;
-  code?: string;
-  message: string;
-  isAuthenticated: boolean;
-  phoneNumber?: string;
-  nationalId?: string;
-  userType?: string;
-  userName?: string;
-  email?: string;
-  roles: string[];
-  token: string;
-  errors: string[];
-  refreshToken: string;
-  refreshTokenExpiration: string;
-}
 
 // ─── Token Persistence ────────────────────────────────────────────────────────
 
@@ -162,66 +155,6 @@ export async function resetPasswordApi(
 
 // ─── Review Types ─────────────────────────────────────────────────────────────
 
-export interface ReviewLogItem {
-  targetId: string;
-  requestType: 'Organization' | 'User' | 'Program' | 'Enrollment' | 'EditOrg' | 'EditUser' | string;
-  name: string;
-  organizationName: string;
-  documentStatus: string;
-  requestDate: string;
-  status: 'PendingReview' | 'PendingApproval' | 'PendingPublish' | 'Approved' | 'Rejected' | string;
-}
-
-export interface ReviewLogsResponse {
-  items: ReviewLogItem[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-export interface DocumentDetails {
-  id: string;
-  fileName: string;
-  fileUrl: string;
-  fileSizeInMegabytes: number;
-  documentStatus: string;
-}
-
-export interface OrgRequestDetails {
-  userId: string;
-  officialName: string;
-  organizationType: string;
-  sector: string;
-  country: string;
-  city: string;
-  adminName: string;
-  email: string;
-  phoneNumber: string;
-  applicationDate: string;
-  documents: DocumentDetails[];
-}
-
-export interface TraineeRequestDetails {
-  userId: string;
-  name: string;
-  nationalId: string;
-  phoneNumber: string;
-  email: string;
-  country: string;
-  city: string;
-  classification: string;
-  affiliationEntity: string;
-  studySpecialization: string;
-  interestedMajor: string;
-  applicationDate: string;
-}
-
-export interface DecisionPayload {
-  targetId: string;
-  isApproved: boolean;
-  rejectionReason?: string;
-}
 
 // Stateful local mock reviews database
 let mockReviewLogs: ReviewLogItem[] = [
@@ -767,15 +700,6 @@ export async function submitTraineeRequestDecisionApi(payload: DecisionPayload):
   }
 }
 
-export interface ProgramRequestDetails {
-  programId: string;
-  programName: string;
-  programType: string;
-  targetAudience: string;
-  startDate: string;
-  endDate: string;
-  applicationDate: string;
-}
 
 export async function getProgramRequestDetailsApi(id: string): Promise<ProgramRequestDetails> {
   try {

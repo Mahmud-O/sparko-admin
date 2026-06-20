@@ -10,6 +10,7 @@ import { loginAdminApi, verifyAdminOtpApi, persistTokens } from '@/lib/apiServic
 import { useOtpInput } from '@/hooks/useOtpInput';
 import { useCountdown } from '@/hooks/useCountdown';
 import Checkbox from '@/components/ui/Checkbox';
+import OtpInput from '@/components/ui/OtpInput';
 
 type Step = 'credentials' | 'otp';
 
@@ -18,7 +19,7 @@ type Step = 'credentials' | 'otp';
 function inputCls(hasError: boolean) {
   return [
     'w-full px-4 py-3.5 rounded-xl border text-[14px]',
-    'focus:outline-none focus:ring-1 transition-all',
+    'focus:outline-none focus:ring-1 transition-all autofill:shadow-[inset_0_0_0px_1000px_#ffffff] autofill:text-fill-gray-800',
     'text-gray-800 placeholder-gray-400 text-right',
     'disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed',
     hasError
@@ -274,29 +275,15 @@ export default function AdminLoginPage() {
                   <p className="text-[14px] font-bold text-gray-800 text-center mb-4">
                     رمز التحقق (أدخل الرمز المكون من 6 أرقام)
                   </p>
-
-                  <div className="flex gap-8 justify-center mb-2" dir="ltr" onPaste={otp.handlePaste}>
-                    {otp.digits.map((digit, i) => (
-                      <input
-                        key={i}
-                        ref={(el) => { otp.refs.current[i] = el; }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => { otp.handleChange(i, e.target.value); setOtpError(null); }}
-                        onKeyDown={(e) => otp.handleKeyDown(i, e)}
-                        className={[
-                          'w-12 h-12 text-center text-xl font-bold rounded-xl border-2 focus:outline-none transition-all',
-                          otpError
-                            ? 'border-red-400 bg-red-50 text-red-600'
-                            : digit
-                              ? 'border-[#80EAC8] text-text-muted'
-                              : 'border-gray-200 bg-white  focus:border-[#80EAC8] ',
-                        ].join(' ')}
-                      />
-                    ))}
-                  </div>
+                  <OtpInput
+                    digits={otp.digits}
+                    refs={otp.refs}
+                    onChange={(i, val) => { otp.handleChange(i, val); setOtpError(null); }}
+                    onKeyDown={otp.handleKeyDown}
+                    onPaste={otp.handlePaste}
+                    hasError={Boolean(otpError)}
+                    disabled={otpLoading}
+                  />
 
                   {/* Error */}
                   {otpError && (

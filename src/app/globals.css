@@ -69,8 +69,8 @@ body {
 
 /* Global custom scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 2px;
 }
 
 ::-webkit-scrollbar-track {
@@ -95,8 +95,8 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 2px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -112,3 +112,7 @@ body {
   background: rgba(100, 116, 139, 0.45);
 }
 
+html{
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1;
+}

@@ -27,7 +27,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white rounded-2xl flex items-center justify-between px-4 py-3 md:px-6 md:py-4 shrink-0 gap-3">
+      <header className="bg-white rounded-b-2xl  flex items-center justify-between px-4 py-3 md:px-6 md:py-4 shrink-0 gap-3">
         {/* Right side: Hamburger + Notification + Search */}
         <div className="flex items-center gap-2 md:gap-3 flex-1">
           {/* Hamburger button (visible on mobile only) */}

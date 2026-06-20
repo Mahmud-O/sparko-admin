@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useAuthStore } from "../useAuthStore";
-import type { AuthData } from "@/lib/apiServices";
+import type { AuthData } from '@/lib/types';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 
