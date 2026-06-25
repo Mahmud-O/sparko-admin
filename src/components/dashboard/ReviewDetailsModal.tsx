@@ -342,11 +342,13 @@ export default function ReviewDetailsModal({
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                        !rejectMode ? 'border-[#34DEA7]' : 'border-[#CBD5E1]'
+                      className={`w-5 h-5 rounded-full relative transition-colors shrink-0 border-2 ${
+                        !rejectMode ? 'border-[#34DEA7] bg-white' : 'border-[#CBD5E1] bg-white'
                       }`}
                     >
-                      {!rejectMode && <div className="w-3.5 h-3.5 rounded-full bg-[#34DEA7]" />}
+                      <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#34DEA7] transition-all duration-200 ${
+                        !rejectMode ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                      }`} />
                     </div>
                     <span className={`font-bold text-sm ${!rejectMode ? 'text-[#10B981]' : 'text-[#1E293B]'}`}>
                       قبول الطلب
@@ -364,11 +366,13 @@ export default function ReviewDetailsModal({
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                        rejectMode ? 'border-[#EF4444]' : 'border-[#CBD5E1]'
+                      className={`w-5 h-5 rounded-full relative transition-colors shrink-0 border-2 ${
+                        rejectMode ? 'border-[#EF4444] bg-white' : 'border-[#CBD5E1] bg-white'
                       }`}
                     >
-                      {rejectMode && <div className="w-3.5 h-3.5 rounded-full bg-[#EF4444]" />}
+                      <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#EF4444] transition-all duration-200 ${
+                        rejectMode ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                      }`} />
                     </div>
                     <span className={`font-bold text-sm ${rejectMode ? 'text-[#EF4444]' : 'text-[#1E293B]'}`}>
                       رفض الطلب

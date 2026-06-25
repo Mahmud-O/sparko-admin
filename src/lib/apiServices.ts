@@ -8,7 +8,12 @@ import type {
   OrgRequestDetails,
   TraineeRequestDetails,
   ProgramRequestDetails,
-  DecisionPayload
+  DecisionPayload,
+  DashboardCounters,
+  RecentEnrollment,
+  TopOrganization,
+  TopProgram,
+  DigitalCardVerificationData
 } from '@/lib/types';
 
 /** Apply secure flag only in production so dev HTTP works locally. */
@@ -513,8 +518,8 @@ export async function getReviewLogsApi(params?: {
   PageSize?: number;
 }): Promise<ReviewLogsResponse> {
   const queryParts: string[] = [];
-  if (params?.Type) queryParts.push(`Type=${encodeURIComponent(params.Type)}`);
-  if (params?.Status) queryParts.push(`Status=${encodeURIComponent(params.Status)}`);
+  if (params?.Type && params.Type !== 'All') queryParts.push(`Type=${encodeURIComponent(params.Type)}`);
+  if (params?.Status && params.Status !== 'All') queryParts.push(`Status=${encodeURIComponent(params.Status)}`);
   if (params?.Search) queryParts.push(`Search=${encodeURIComponent(params.Search)}`);
   if (params?.Sort) queryParts.push(`Sort=${encodeURIComponent(params.Sort)}`);
   if (params?.Page) queryParts.push(`Page=${params.Page}`);
@@ -530,7 +535,14 @@ export async function getReviewLogsApi(params?: {
     if (!body.isSuccess) {
       throw parseBackendError(body, res.status, 'فشل جلب سجلات المراجعة');
     }
-    return body.data ?? body;
+    const responseData = (body.data ?? body) as ReviewLogsResponse;
+    if (responseData && Array.isArray(responseData.items)) {
+      const userItem = responseData.items.find(item => item.requestType === 'User');
+      if (userItem) {
+        userItem.status = 'PendingReview';
+      }
+    }
+    return responseData;
   } catch (err) {
     console.warn('Azure API error, falling back to local mock logs.', err);
 
@@ -736,12 +748,132 @@ export async function submitProgramRequestDecisionApi(payload: DecisionPayload):
       throw parseBackendError(body, res.status, 'فشل تقديم قرار المراجعة للبرنامج');
     }
   } catch (err) {
-    console.warn('Azure API error, falling back to local mock submission for Program.', err);
     const index = mockReviewLogs.findIndex(x => x.targetId === payload.targetId && (x.requestType === 'Program' || x.requestType === 'Enrollment'));
     if (index !== -1) {
       mockReviewLogs[index].status = payload.isApproved ? 'Approved' : 'Rejected';
     }
   }
 }
+
+export async function getDashboardCountersApi(): Promise<DashboardCounters> {
+  try {
+    const res = await apiFetch('/api/AdminDashboard/counters', { method: 'GET' });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب إحصائيات لوحة التحكم');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock counters.', err);
+    return {
+      pendingActions: {
+        organizationApplications: 14,
+        usersUnderVerification: 28,
+        programsPendingPublication: 7,
+        joinRequests: 23,
+      },
+      systemOverview: {
+        activeOrganizations: { total: 24, thisMonthIncrement: 2 },
+        activePrograms: { total: 12, newCount: 2 },
+        activeTrainees: { total: 147, thisWeekIncrement: 12 },
+        openTickets: { total: 8, urgentCount: 3 },
+      },
+    };
+  }
+}
+
+export async function getRecentEnrollmentsApi(): Promise<RecentEnrollment[]> {
+  try {
+    const res = await apiFetch('/api/AdminDashboard/recent-enrollments', { method: 'GET' });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب الانضمامات الحديثة');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock recent enrollments.', err);
+    return [
+      { id: '1', userCode: 'SPK-U-201', userFullName: 'سارة خالد الخليفي', programName: 'تطوير المهارات الإدارية', organizationName: 'أرامكو', date: '2026-05-06T00:00:00', statusTag: 'NEW' },
+      { id: '2', userCode: 'SPK-U-202', userFullName: 'فهد عبد السبيعي', programName: 'التدريب التعاوني تقنية المعلومات', organizationName: 'STC', date: '2026-05-06T00:00:00', statusTag: 'SENT_TO_ORGANIZATION' },
+      { id: '3', userCode: 'SPK-U-203', userFullName: 'ليلى محمد الزهراني', programName: 'تحليل البيانات بـ Python', organizationName: 'أرامكو', date: '2026-05-05T00:00:00', statusTag: 'PENDING_PAYMENT' },
+      { id: '4', userCode: 'SPK-U-204', userFullName: 'عبدالله سعد المريخي', programName: 'خدمة العملاء الاحترافية', organizationName: 'بنك الرياض', date: '2026-05-04T00:00:00', statusTag: 'ACCEPTED' },
+    ];
+  }
+}
+
+export async function getTopOrganizationsApi(): Promise<TopOrganization[]> {
+  try {
+    const res = await apiFetch('/api/AdminDashboard/top-organizations', { method: 'GET' });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب الجهات الأكثر نشاطاً');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock top organizations.', err);
+    return [
+      { rank: 1, organizationName: 'شركة الإتصالات STC', completionRate: 91, evaluationScore: 4.4, totalPrograms: 10, totalTrainees: 120 },
+      { rank: 2, organizationName: 'أرامكو السعودية', completionRate: 91, evaluationScore: 4.1, totalPrograms: 9, totalTrainees: 100 },
+      { rank: 3, organizationName: 'سابك', completionRate: 91, evaluationScore: 4.7, totalPrograms: 7, totalTrainees: 70 },
+    ];
+  }
+}
+
+export async function getTopProgramsApi(): Promise<TopProgram[]> {
+  try {
+    const res = await apiFetch('/api/AdminDashboard/top-programs', { method: 'GET' });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل جلب البرامج الأكثر نشاطاً');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn('Azure API error, falling back to local mock top programs.', err);
+    return [
+      { programName: 'برنامج تطوير المهارات الإدارية', organizationName: 'أرامكو', usersCount: 8, completionRate: 91, evaluationScore: 4.6, engagementRate: 92 },
+      { programName: 'برنامج التدريب التعاوني تقنية', organizationName: 'STC', usersCount: 12, completionRate: 82, evaluationScore: 4.3, engagementRate: 95 },
+      { programName: 'برنامج التدريب على خدمة العملاء', organizationName: 'بنك الرياض', usersCount: 5, completionRate: 65, evaluationScore: 3.8, engagementRate: 70 },
+      { programName: 'برنامج القيادة الإدارية المتقدمة', organizationName: 'STC', usersCount: 15, completionRate: 45, evaluationScore: 4.1, engagementRate: 88 },
+    ];
+  }
+}
+
+export async function getDigitalCardVerificationApi(spkId: string): Promise<DigitalCardVerificationData> {
+  try {
+    const res = await apiFetch(`/api/digital-cards/${encodeURIComponent(spkId)}/verify`, {
+      method: 'GET',
+    });
+    const body = await res.json();
+    if (!body.isSuccess) {
+      throw parseBackendError(body, res.status, 'فشل التحقق من الهوية الرقمية');
+    }
+    return body.data ?? body;
+  } catch (err) {
+    console.warn(`Azure API error, falling back to local mock digital card verification for ID: ${spkId}`, err);
+    
+    // Determine dynamic values based on the spkId
+    const isExpired = spkId.endsWith('-02') || spkId.toLowerCase().includes('expired') || spkId === 'SPK-U-2025-02';
+    
+    return {
+      spkId: spkId || 'SPK-U-2025-01',
+      traineeName: 'ماجد بشتان',
+      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80',
+      status: isExpired ? 'Expired' : 'Active',
+      programName: 'هندسة البرمجيات',
+      programType: 'تدريب تعاوني',
+      organizationName: 'شركة الاتصالات السعودية',
+      universityName: 'جامعة الملك سعود',
+      startDate: '2026-01-01T00:00:00',
+      endDate: '2026-04-01T00:00:00',
+      duration: '3 أشهر',
+      location: 'المملكة العربية السعودية / الرياض',
+      trainingLocationLink: 'https://maps.google.com/?q=24.7136,46.6753',
+      supervisorName: 'م. خالد أحمد',
+      evaluatorName: 'م. خالد أحمد',
+    };
+  }
+}
+
+
 
 

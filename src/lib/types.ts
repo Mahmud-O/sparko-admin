@@ -103,3 +103,78 @@ export interface PageData {
   columns: string[];
   rows: Record<string, any>[];
 }
+
+export interface DashboardCounters {
+  pendingActions: {
+    organizationApplications: number;
+    usersUnderVerification: number;
+    programsPendingPublication: number;
+    joinRequests: number;
+  };
+  systemOverview: {
+    activeOrganizations: {
+      total: number;
+      thisMonthIncrement: number;
+    };
+    activePrograms: {
+      total: number;
+      newCount: number;
+    };
+    activeTrainees: {
+      total: number;
+      thisWeekIncrement: number;
+    };
+    openTickets: {
+      total: number;
+      urgentCount: number;
+    };
+  };
+}
+
+export interface RecentEnrollment {
+  id: string;
+  userCode: string;
+  userFullName: string;
+  programName: string;
+  organizationName: string;
+  date: string;
+  statusTag: 'NEW' | 'SENT_TO_ORGANIZATION' | 'PENDING_PAYMENT' | 'ACCEPTED';
+}
+
+export interface TopOrganization {
+  rank: number;
+  organizationName: string;
+  completionRate: number;
+  evaluationScore: number;
+  totalPrograms: number;
+  totalTrainees: number;
+}
+
+export interface TopProgram {
+  programName: string;
+  organizationName: string;
+  usersCount: number;
+  completionRate: number;
+  evaluationScore: number;
+  engagementRate: number;
+}
+
+export interface DigitalCardVerificationData {
+  spkId: string;
+  traineeName: string;
+  photoUrl: string;
+  status: 'Active' | 'Expired' | string;
+  programName: string;
+  programType: string;
+  organizationName: string;
+  universityName: string;
+  startDate: string;
+  endDate: string;
+  duration: string;
+  location: string;
+  trainingLocationLink: string;
+  supervisorName: string;
+  evaluatorName: string;
+}
+
+

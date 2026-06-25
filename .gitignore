@@ -41,5 +41,11 @@ yarn-error.log*
 next-env.d.ts
 
 # IDEs
+/.github/
+/.vscode
+
 .kilo
 .opencode
+.cursorrules
+.windsurfrules
+.antigravityrules

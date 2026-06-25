@@ -1,28 +1,214 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
-  PENDING_ACTIONS,
-  OVERVIEW_STATS,
-  TOP_PROGRAMS,
-  RECENT_ENROLLMENTS,
-  TOP_ORGANIZATIONS,
-} from "@/lib/constants";
+  getDashboardCountersApi,
+  getRecentEnrollmentsApi,
+  getTopOrganizationsApi,
+  getTopProgramsApi
+} from "@/lib/apiServices";
+import type {
+  DashboardCounters,
+  RecentEnrollment,
+  TopOrganization,
+  TopProgram
+} from "@/lib/types";
 
 export default function AdminDashboardPage() {
   const { isAdmin } = useAuthStore();
   const router = useRouter();
 
+  const [counters, setCounters] = useState<DashboardCounters | null>(null);
+  const [recentEnrollments, setRecentEnrollments] = useState<RecentEnrollment[]>([]);
+  const [topOrganizations, setTopOrganizations] = useState<TopOrganization[]>([]);
+  const [topPrograms, setTopPrograms] = useState<TopProgram[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    if (!isAdmin) {
-      router.replace("/");
+    if (!isAdmin) return;
+
+    async function loadData() {
+      setLoading(true);
+      try {
+        const [cnt, enrolls, orgs, progs] = await Promise.all([
+          getDashboardCountersApi(),
+          getRecentEnrollmentsApi(),
+          getTopOrganizationsApi(),
+          getTopProgramsApi()
+        ]);
+        setCounters(cnt);
+        setRecentEnrollments(enrolls);
+        setTopOrganizations(orgs);
+        setTopPrograms(progs);
+      } catch (err) {
+        console.error("Error loading dashboard data", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [isAdmin, router]);
+
+    loadData();
+  }, [isAdmin]);
 
   if (!isAdmin) return null;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]" dir="rtl">
+        <div className="flex flex-col items-center gap-3">
+          <Icon icon="line-md:loading-twotone-loop" className="w-10 h-10 text-[#FF5500]" />
+          <p className="text-xs text-[#94A3B8] font-bold">جاري تحميل بيانات لوحة التحكم...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Map pending actions dynamic counts
+  const pendingActions = [
+    {
+      label: "طلبات جهات",
+      value: counters?.pendingActions.organizationApplications ?? 0,
+      icon: "ri:building-2-line",
+      color: "#DBD300",
+      bg: "#FFFBEB",
+      type: "Organization"
+    },
+    {
+      label: "مستفيدين تحت التوثيق",
+      value: counters?.pendingActions.usersUnderVerification ?? 0,
+      icon: "lucide:user",
+      color: "#8B5CF6",
+      bg: "#F5F3FF",
+      type: "User"
+    },
+    {
+      label: "برامج بانتظار النشر",
+      value: counters?.pendingActions.programsPendingPublication ?? 0,
+      icon: "lucide:book-open",
+      color: "#4BE2B1",
+      bg: "#EFFCF8",
+      type: "Program"
+    },
+    {
+      label: "طلبات انضمام",
+      value: counters?.pendingActions.joinRequests ?? 0,
+      icon: "ri:clipboard-line",
+      color: "#D97706",
+      bg: "#FFF7ED",
+      type: "Enrollment"
+    },
+  ];
+
+  // Map overview stats dynamically
+  const overviewStats = [
+    {
+      label: "جهات نشطة",
+      value: counters?.systemOverview.activeOrganizations.total ?? 0,
+      subLabel: `+${counters?.systemOverview.activeOrganizations.thisMonthIncrement ?? 0} هذا الشهر`,
+      icon: "ri:building-2-line",
+      color: "#DBD300",
+      bg: "#FFFBEB"
+    },
+    {
+      label: "برامج نشطة",
+      value: counters?.systemOverview.activePrograms.total ?? 0,
+      subLabel: `+${counters?.systemOverview.activePrograms.newCount ?? 0} جديدة`,
+      icon: "lucide:book-open",
+      color: "#34DEA7",
+      bg: "#EFFCF8"
+    },
+    {
+      label: "مستفيدين من التدريب",
+      value: counters?.systemOverview.activeTrainees.total ?? 0,
+      subLabel: `+${counters?.systemOverview.activeTrainees.thisWeekIncrement ?? 0} الأسبوع`,
+      icon: "lucide:users",
+      color: "#8B5CF6",
+      bg: "#F5F3FF"
+    },
+    {
+      label: "تذاكر مفتوحة",
+      value: counters?.systemOverview.openTickets.total ?? 0,
+      subLabel: `${counters?.systemOverview.openTickets.urgentCount ?? 0} عاجلة`,
+      icon: "ri:ticket-line",
+      color: "#FF5500",
+      bg: "#fff1eb"
+    },
+  ];
+
+  // Map top programs
+  const mappedPrograms = topPrograms.map((p) => ({
+    code: "PR",
+    name: p.programName,
+    org: p.organizationName,
+    beneficiaries: p.usersCount,
+    completion: p.completionRate,
+    rating: p.evaluationScore,
+    engagement: `${p.engagementRate}%`
+  }));
+
+  // Helper for status formatting
+  const getStatusConfig = (tag: string) => {
+    switch (tag) {
+      case "NEW":
+        return { label: "جديد", color: "#DBD300", bg: "#fcfbeb", border: "#F6F3BD" };
+      case "SENT_TO_ORGANIZATION":
+        return { label: "مرسل للجهة", color: "#2E34FF", bg: "#EFF6FF", border: "#CFE4FE" };
+      case "PENDING_PAYMENT":
+        return { label: "بانتظار الدفع", color: "#D97706", bg: "#FCF4EB", border: "#FDEAA2" };
+      case "ACCEPTED":
+        return { label: "مقبول", color: "#3FE0AC", bg: "#EFFCF8", border: "#A7F3D0" };
+      default:
+        return { label: tag, color: "#64748B", bg: "#F1F5F9", border: "#E2E8F0" };
+    }
+  };
+
+  // Map recent enrollments list
+  const mappedEnrollments = recentEnrollments.map((e) => {
+    const statusCfg = getStatusConfig(e.statusTag);
+    const dateFormatted = e.date ? e.date.split("T")[0].replace(/-/g, "/") : "";
+    return {
+      name: e.userFullName,
+      program: e.programName,
+      org: e.organizationName,
+      date: dateFormatted,
+      status: statusCfg.label,
+      statusColor: statusCfg.color,
+      statusBg: statusCfg.bg,
+      bgboredr: statusCfg.border
+    };
+  });
+
+  // Map top organizations rank style
+  const getOrgStyles = (rank: number, name: string) => {
+    let logoText = name.split(" ")[0] || "";
+    if (name.toLowerCase().includes("stc")) logoText = "STC";
+    else if (name.includes("أرامكو")) logoText = "أرامكو";
+    else if (name.includes("سابك")) logoText = "سابك";
+    else if (logoText.length > 5) logoText = logoText.substring(0, 5);
+
+    if (rank === 1) return { logo: logoText, bg: "#EFFDF8", color: "#34DEA7" };
+    if (rank === 2) return { logo: logoText, bg: "#EFF6FF", color: "#3B82F6" };
+    if (rank === 3) return { logo: logoText, bg: "#FFFBEB", color: "#DBD300" };
+    return { logo: logoText, bg: "#F1F5F9", color: "#64748B" };
+  };
+
+  const mappedOrgs = topOrganizations.map((org) => {
+    const styles = getOrgStyles(org.rank, org.organizationName);
+    return {
+      rank: org.rank,
+      name: org.organizationName,
+      logo: styles.logo,
+      logoBg: styles.bg,
+      logoColor: styles.color,
+      rating: org.evaluationScore,
+      completion: org.completionRate,
+      programs: org.totalPrograms,
+      beneficiaries: org.totalTrainees
+    };
+  });
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -33,16 +219,17 @@ export default function AdminDashboardPage() {
           إجراءات بانتظار المراجعة
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {PENDING_ACTIONS.map((action, i) => (
+          {pendingActions.map((action, i) => (
             <div
               key={i}
-              className="bg-white border border-[#E2E8F0] rounded-xl px-4 py-3.5 flex items-center justify-between cursor-pointer hover:shadow-sm transition-shadow"
+              onClick={() => router.push(`/dashboard/reviews?type=${action.type}`)}
+              className="bg-white border border-[#E2E8F0] rounded-xl px-4 py-3.5 flex items-center justify-between cursor-pointer hover:shadow-md hover:border-[#FF5500]/30 transition-all group"
             >
 
               {/* Center: number + label */}
               <div className="flex items-center gap-3">
                 <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"
                   style={{ backgroundColor: action.bg }}
                 >
                   <Icon icon={action.icon} className="w-4.5 h-4.5" style={{ color: action.color }} />
@@ -55,7 +242,7 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Left arrow */}
-              <Icon icon="lucide:chevron-left" className="w-4 h-4 text-[#CBD5E1] shrink-0" />
+              <Icon icon="lucide:chevron-left" className="w-4 h-4 text-[#CBD5E1] group-hover:text-[#FF5500] group-hover:-translate-x-1 transition-all shrink-0" />
             </div>
           ))}
         </div>
@@ -69,7 +256,7 @@ export default function AdminDashboardPage() {
           نظرة عامة Overview
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {OVERVIEW_STATS.map((stat, i) => (
+          {overviewStats.map((stat, i) => (
             <div
               key={i}
               dir="rtl"
@@ -103,7 +290,10 @@ export default function AdminDashboardPage() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#E2E8F0]">
             <h3 className="text-[14px] font-bold text-[#1E293B]">أبرز البرامج</h3>
-            <button className="text-xs text-primary font-medium flex items-center gap-0.5 hover:text-[#1E293B] transition-colors">
+            <button 
+              onClick={() => router.push("/dashboard/reviews")}
+              className="text-xs text-primary font-medium flex items-center gap-0.5 hover:text-[#1E293B] transition-colors"
+            >
               عرض الكل
               <Icon icon="lucide:chevron-left" className="w-3 h-3" />
             </button>
@@ -123,7 +313,7 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {TOP_PROGRAMS.map((p, i) => (
+                {mappedPrograms.map((p, i) => (
                   <tr key={i} className="border-b border-[#F1F5F9] last:border-b-0 hover:bg-[#FAFBFC] transition-colors">
                     {/* Program name + code badge */}
                     <td className="py-2.5 px-4">
@@ -169,7 +359,10 @@ export default function AdminDashboardPage() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#E2E8F0]">
             <h3 className="text-sm font-bold text-[#1E293B]">انضمامات حديثة</h3>
-            <button className="text-xs text-primary font-medium flex items-center gap-0.5 hover:text-[#1E293B] transition-colors">
+            <button 
+              onClick={() => router.push("/dashboard/reviews")}
+              className="text-xs text-primary font-medium flex items-center gap-0.5 hover:text-[#1E293B] transition-colors"
+            >
               عرض الكل
               <Icon icon="lucide:chevron-left" className="w-3 h-3" />
             </button>
@@ -177,7 +370,7 @@ export default function AdminDashboardPage() {
 
           {/* List */}
           <div className="divide-y divide-[#F1F5F9]">
-            {RECENT_ENROLLMENTS.map((e, i) => (
+            {mappedEnrollments.map((e, i) => (
               <div key={i} className="px-4 py-3 flex items-center gap-3">
 
 
@@ -199,7 +392,7 @@ export default function AdminDashboardPage() {
                 {/* Status badge (left side in RTL) */}
                 <span
                   className="text-xs font-bold px-4 py-2 border-2 rounded-full min-w-24 text-center whitespace-nowrap"
-                  style={{ color: e.statusColor, backgroundColor: e.statusBg,borderColor:e.bgboredr }}
+                  style={{ color: e.statusColor, backgroundColor: e.statusBg, borderColor: e.bgboredr }}
                 >
                   {e.status}
                 </span>
@@ -215,7 +408,7 @@ export default function AdminDashboardPage() {
           أفضل الجهات أداءً
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {TOP_ORGANIZATIONS.map((org) => (
+          {mappedOrgs.map((org) => (
             <div
               key={org.rank}
               className="bg-white border border-[#E2E8F0] rounded-xl p-4 hover:shadow-sm transition-shadow"
@@ -228,13 +421,14 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div
-                    className="px-3 py-1 leading-4 border-[#C8F7E2] border-2 bg-[#EFFCF8] text-[#34DEA7] rounded-full flex items-center justify-center text-xs font-bold "
+                    className="px-3 py-1 leading-4 border-2 rounded-full flex items-center justify-center text-xs font-bold"
+                    style={{ borderColor: org.logoBg, backgroundColor: org.logoBg + '33', color: org.logoColor }}
                   >
                     {org.logo}
                   </div>
                 </div>
               </div>
-              <div className="flex  items-center gap-2 justify-start">
+              <div className="flex items-center gap-2 justify-start">
                   <p className="text-sm leading-5 font-bold text-[#1E293B]">{org.name}</p>
               </div>
 
@@ -246,7 +440,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="flex-1 bg-[#F8FAFC] rounded-lg py-2.5 text-center">
                   <p className="text-base font-bold text-[#1E293B]">{org.rating}</p>
-                  <p className="text-xss text-[#64748B]">تقييم</p>
+                  <p className="text-xs text-[#64748B]">تقييم</p>
                 </div>
               </div>
 
@@ -259,8 +453,11 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="w-full h-1.5 bg-[#F1F5F9] rounded-full">
                     <div
-                      className="h-full bg-[#93EAD0] rounded-full"
-                      style={{ width: `${Math.min((org.programs / 15) * 100, 100)}%` }}
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min((org.programs / 15) * 100, 100)}%`,
+                        backgroundColor: org.logoColor
+                      }}
                     />
                   </div>
                 </div>
@@ -280,8 +477,9 @@ export default function AdminDashboardPage() {
             </div>
           ))}
         </div>
-        </div>
       </div>
+      </div>
+
         
     </div>
   );

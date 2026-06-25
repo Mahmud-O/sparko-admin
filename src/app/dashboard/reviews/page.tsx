@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { Icon } from "@iconify/react";
 import {
   getReviewLogsApi,
   getOrgRequestDetailsApi,
@@ -26,9 +27,10 @@ import ReviewDetailsModal from "@/components/dashboard/ReviewDetailsModal";
 import CustomizeReviewsModal from "@/components/dashboard/CustomizeReviewsModal";
 import SuccessModal from "@/components/ui/SuccessModal";
 
-export default function ReviewsPage() {
+function ReviewsContent() {
   const { isAdmin } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Authentication check
   useEffect(() => {
@@ -52,9 +54,23 @@ export default function ReviewsPage() {
 
   // Filters
   const [searchVal, setSearchVal] = useState("");
-  const [typeFilter, setTypeFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "All");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "All");
   const [sortOption, setSortOption] = useState("DateDesc");
+
+  // Sync search parameters from URL to local state
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (type) {
+      setTypeFilter(type);
+      setPage(1);
+    }
+    const status = searchParams.get("status");
+    if (status) {
+      setStatusFilter(status);
+      setPage(1);
+    }
+  }, [searchParams]);
 
   // Preview Modal states
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -138,7 +154,7 @@ export default function ReviewsPage() {
       clearInterval(interval);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [typeFilter, statusFilter, sortOption, page, isAdmin]);
+  }, [typeFilter, statusFilter, sortOption, page, searchVal, isAdmin]);
 
   // Reset all filters
   const handleResetFilters = () => {
@@ -340,5 +356,20 @@ export default function ReviewsPage() {
       />
 
     </div>
+  );
+}
+
+export default function ReviewsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]" dir="rtl">
+        <div className="flex flex-col items-center gap-3">
+          <Icon icon="line-md:loading-twotone-loop" className="w-10 h-10 text-[#FF5500]" />
+          <p className="text-xs text-[#94A3B8] font-bold">جاري تحميل صفحة المراجعات...</p>
+        </div>
+      </div>
+    }>
+      <ReviewsContent />
+    </Suspense>
   );
 }

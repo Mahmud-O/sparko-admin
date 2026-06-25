@@ -61,8 +61,8 @@ export default function CustomizeReviewsModal({
           >
             {/* Left: Checkbox */}
             <div
-              className={`w-5 h-5 rounded flex items-center justify-center transition-colors shrink-0 ${
-                autoAcceptBeneficiary ? 'bg-[#FF5500]' : 'border-2 border-[#CBD5E1] bg-white'
+              className={`w-5 h-5 rounded-[6px] flex items-center justify-center transition-colors shrink-0 ${
+                autoAcceptBeneficiary ? 'bg-[#FF5500] border-[#FF5500]' : 'border-2 border-[#CBD5E1] bg-white'
               }`}
             >
               {autoAcceptBeneficiary && <Icon icon="lucide:check" className="w-3.5 h-3.5 text-white" />}
@@ -94,13 +94,15 @@ export default function CustomizeReviewsModal({
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                  reviewMechanism === 'Automatic' ? 'border-primary' : 'border-[#CBD5E1]'
+                className={`w-5 h-5 rounded-full relative transition-colors shrink-0 border-2 ${
+                  reviewMechanism === 'Automatic' ? 'border-[#FF5500] bg-white' : 'border-[#CBD5E1] bg-white'
                 }`}
               >
-                {reviewMechanism === 'Automatic' && <div className="w-3.5 h-3.5 rounded-full bg-primary my-0 mx-auto" />}
+                <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#FF5500] transition-all duration-200 ${
+                  reviewMechanism === 'Automatic' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                }`} />
               </div>
-              <span className={`font-bold text-[13px] ${reviewMechanism === 'Automatic' ? 'text-primary' : 'text-[#1E293B]'}`}>
+              <span className={`font-bold text-[13px] ${reviewMechanism === 'Automatic' ? 'text-[#FF5500]' : 'text-[#1E293B]'}`}>
                 تلقائي
               </span>
             </button>
@@ -116,11 +118,13 @@ export default function CustomizeReviewsModal({
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                  reviewMechanism === 'Manual' ? 'border-[#FF5500]' : 'border-[#CBD5E1]'
+                className={`w-5 h-5 rounded-full relative transition-colors shrink-0 border-2 ${
+                  reviewMechanism === 'Manual' ? 'border-[#FF5500] bg-white' : 'border-[#CBD5E1] bg-white'
                 }`}
               >
-                {reviewMechanism === 'Manual' && <div className="w-4 h-4 rounded-full bg-[#FF5500]" />}
+                <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#FF5500] transition-all duration-200 ${
+                  reviewMechanism === 'Manual' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                }`} />
               </div>
               <span className={`font-bold text-right text-[13px] ${reviewMechanism === 'Manual' ? 'text-[#FF5500]' : 'text-[#1E293B]'}`}>
                 يدوي
