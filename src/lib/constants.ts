@@ -95,20 +95,20 @@ export const STATUS_CONFIG: Record<string, { label: string; textClass: string; b
   PendingReview: {
     label: "تحت المراجعة",
     textClass: "text-[#FF5500]",
-    bgClass: "bg-[#FFF0E8]",
-    borderClass: "border-[#FFD5C2]"
+    bgClass: "bg-[#FFF7ED]",
+    borderClass: "border-[#FED7AA]"
   },
   Pending: {
     label: "تحت المراجعة",
     textClass: "text-[#FF5500]",
-    bgClass: "bg-[#FFF0E8]",
-    borderClass: "border-[#FFD5C2]"
+    bgClass: "bg-[#FFF7ED]",
+    borderClass: "border-[#FED7AA]"
   },
   pending: {
     label: "تحت المراجعة",
     textClass: "text-[#FF5500]",
-    bgClass: "bg-[#FFF0E8]",
-    borderClass: "border-[#FFD5C2]"
+    bgClass: "bg-[#FFF7ED]",
+    borderClass: "border-[#FED7AA]"
   },
   PendingApproval: {
     label: "تحت الموافقة",
@@ -129,10 +129,10 @@ export const STATUS_CONFIG: Record<string, { label: string; textClass: string; b
     borderClass: "border-[#A7F3D0]"
   },
   Rejected: {
-    label: "مرفوض",
+    label: "تم الرفض",
     textClass: "text-[#EF4444]",
     bgClass: "bg-[#FEF2F2]",
-    borderClass: "border-[#FECFCF]"
+    borderClass: "border-[#FECACA]"
   }
 };
 
@@ -145,44 +145,7 @@ export const TYPE_CONFIG: Record<string, string> = {
   EditUser: "تعديل بيانات مستفيد"
 };
 
-// ─── Dashboard Stats & Table Data ───────────────────────────────────────────
 
-export const PENDING_ACTIONS = [
-  { label: "طلبات  جهات", value: 14, icon: "ri:building-2-line", color: "#DBD300", bg: "#FFFBEB" },
-  { label: "مستفيدين تحت التوثيق", value: 28, icon: "lucide:user", color: "#8B5CF6", bg: "#F5F3FF" },
-  { label: "برامج بانتظار النشر", value: 7, icon: "lucide:book-open", color: "#4BE2B1", bg: "#EFFCF8" },
-  { label: "طلبات انضمام", value: 23, icon: "ri:clipboard-line", color: "#D97706", bg: "#FFF7ED" },
-];
-
-export const OVERVIEW_STATS = [
-  { label: "جهات نشطة", value: 24, subLabel: "2+ هذا الشهر", icon: "ri:building-2-line", color: "#DBD300", bg: "#FFFBEB" },
-  { label: "برامج نشطة", value: 12, subLabel: "2+ جديدة", icon: "lucide:book-open", color: "#34DEA7", bg: "#EFFCF8" },
-  { label: "مستفيدين من التدريب", value: 147, subLabel: "+12 الأسبوع", icon: "lucide:users", color: "#8B5CF6", bg: "#F5F3FF" },
-  { label: "تذاكر مفتوحة", value: 8, subLabel: "3 عاجلة", icon: "ri:ticket-line", color: "#FF5500", bg: "#fff1eb" },
-];
-
-export const TOP_PROGRAMS = [
-  { code: "PR", name: "برنامج تطوير المهارات الإدارية", org: "أرامكو", beneficiaries: 8, completion: 91, rating: 4.6, engagement: "92%" },
-  { code: "PR", name: "برنامج التدريب التعاوني تقنية", org: "STC", beneficiaries: 12, completion: 82, rating: 4.3, engagement: "95%" },
-  { code: "PR", name: "برنامج التدريب على خدمة العملاء", org: "بنك الرياض", beneficiaries: 5, completion: 65, rating: 3.8, engagement: "70%" },
-  { code: "PR", name: "برنامج التدريب على خدمة العملاء", org: "بنك الرياض", beneficiaries: 5, completion: 65, rating: 3.8, engagement: "70%" },
-  { code: "PR", name: "برنامج القيادة الإدارية المتقدمة", org: "STC", beneficiaries: 15, completion: 45, rating: 4.1, engagement: "88%" },
-  { code: "PR", name: "برنامج القيادة الإدارية المتقدمة", org: "STC", beneficiaries: 15, completion: 45, rating: 4.1, engagement: "88%" },
-  { code: "PR", name: "برنامج القيادة الإدارية المتقدمة", org: "STC", beneficiaries: 15, completion: 45, rating: 4.1, engagement: "88%" },
-];
-
-export const RECENT_ENROLLMENTS = [
-  { name: "سارة خالد الخليفي", program: "تطوير المهارات الإدارية", org: "أرامكو", date: "2026/05/06", status: "جديد", statusColor: "#DBD300", statusBg: "#fcfbeb", bgboredr: "#F6F3BD" },
-  { name: "فيد عبد السبيعي", program: "التدريب التعاوني لتقنية المعلومات", org: "STC", date: "2026/05/06", status: "مرسل للجهة", statusColor: "#2E34FF", statusBg: "#EFF6FF", bgboredr: "#CFE4FE" },
-  { name: "ليلى محمد الزهراني", program: "تحليل البيانات ، Python", org: "أرامكو", date: "2026/05/05", status: "بانتظار الدفع", statusColor: "#D97706", statusBg: "#FCF4EB", bgboredr: "#FDEAA2" },
-  { name: "عبدالله سعد المريخي", program: "خدمة العملاء الإحترافية", org: "بنك الرياض", date: "2026/05/04", status: "مقبول", statusColor: "#3FE0AC", statusBg: "#EFFCF8", bgboredr: "#A7F3D0" },
-];
-
-export const TOP_ORGANIZATIONS = [
-  { rank: 1, name: "شركة الإتصالات STC", logo: "STC", logoBg: "#e0fafa", logoColor: "#059669", rating: 4.4, completion: 91, programs: 10, beneficiaries: 120 },
-  { rank: 2, name: "أرامكو السعودية", logo: "أرامكو", logoBg: "#DCFCE7", logoColor: "#16A34A", rating: 4.1, completion: 91, programs: 9, beneficiaries: 100 },
-  { rank: 3, name: "سابك", logo: "سابك", logoBg: "#EFF6FF", logoColor: "#3B82F6", rating: 4.7, completion: 91, programs: 7, beneficiaries: 70 },
-];
 
 // ─── Catch-All Slug Data ─────────────────────────────────────────────────────
 

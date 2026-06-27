@@ -34,7 +34,7 @@ export default function ReviewsTable({
               <th className="py-4 px-6 whitespace-nowrap">نوع الطلب</th>
               <th className="py-4 px-6 whitespace-nowrap">الاسم</th>
               <th className="py-4 px-6 whitespace-nowrap text-center">تاريخ الطلب</th>
-              <th className="py-4 px-6 whitespace-nowrap text-center">الحالة</th>
+              <th className="w-46.75 py-4 px-6 whitespace-nowrap text-center">الحالة</th>
               <th className="py-4 px-6 text-center">الإجراءات</th>
             </tr>
           </thead>
@@ -67,28 +67,28 @@ export default function ReviewsTable({
                       label: 'تحت المراجعة',
                       textClass: 'text-[#FF5500]',
                       bgClass: 'bg-[#FFF7ED]',
-                      borderClass: 'border-[#FEDBB2]',
+                      borderClass: 'border-[#FED7AA]',
                     };
                   } else if (statusLower.includes('approve')) {
                     status = {
                       label: 'تم القبول',
                       textClass: 'text-[#34DEA7]',
-                      bgClass: 'bg-[#E6FAF4]',
+                      bgClass: 'bg-[#EFFDF8]',
                       borderClass: 'border-[#A7F3D0]',
                     };
                   } else if (statusLower.includes('reject')) {
                     status = {
-                      label: 'مرفوض',
+                      label: 'تم الرفض',
                       textClass: 'text-[#EF4444]',
                       bgClass: 'bg-[#FEF2F2]',
-                      borderClass: 'border-[#FECFCF]',
+                      borderClass: 'border-[#FECACA]',
                     };
                   } else {
                     status = {
                       label: item.status || '—',
                       textClass: 'text-[#FF5500]',
-                      bgClass: 'bg-[#FFF0E8]',
-                      borderClass: 'border-[#FFD5C2]',
+                      bgClass: 'bg-[#FFF7ED]',
+                      borderClass: 'border-[#FED7AA]',
                     };
                   }
                 }
@@ -109,9 +109,9 @@ export default function ReviewsTable({
                     </td>
                     <td className="py-4 px-6 text-[#1E293B]">{item.name || '—'}</td>
                     <td className="py-4 px-6 text-[#94A3B8] text-center font-sans">{dateStr}</td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="w-46.75 py-4 px-6 text-center">
                       <span
-                        className={`inline-flex items-center justify-center px-4 py-2 rounded-full font-bold text-[10px] w-[80%] whitespace-nowrap ${status.textClass} ${status.bgClass} ${status.borderClass} border`}
+                        className={`inline-flex w-27.5 shrink-0 items-center justify-center rounded-full border px-3.25 py-[8.5px] text-[12px] font-medium leading-4 whitespace-nowrap ${status.textClass} ${status.bgClass} ${status.borderClass}`}
                       >
                         {status.label}
                       </span>
